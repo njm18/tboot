@@ -1,0 +1,28 @@
+Package: tboot
+Title: Twisted Bootstrap
+Version: 0.1.0
+Authors@R: c(
+  person(
+    family = "Landau",
+    given = c("William", "Michael"),
+    email = "will.landau@lilly.com",
+    role = c("aut", "cre")),
+  person(
+    family = "Morris",
+    given = "Nathan",
+    email = "morris_nathan@lilly.com",
+    role = "aut"),
+  person(
+    family = "Eli Lilly and Company",
+    role = "cph"))
+Description: Weighted resampling of data rows
+  to achieve target column means.
+License: GPL-3
+Depends:
+  R (>= 3.2.0)
+Suggests:
+  knitr,
+  rmarkdown,
+  testthat
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
