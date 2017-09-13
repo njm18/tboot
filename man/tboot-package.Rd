@@ -12,6 +12,9 @@ Twisted Bootstrap.
 Weighted resampling of data rows
 to achieve target column means.
 }
+\references{
+\url{https://github.com/wlandau-lilly/tboot}
+}
 \author{
 William Michael Landau \email{will.landau@lilly.com}
 
