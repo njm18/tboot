@@ -25,8 +25,8 @@ tweights <- function(
   target = apply(dataset, 2, mean),
   max_iter = 1e5){
 
-  if (length(target) != nrow(dataset)){
-    stop("length of target must equal nrow(dataset).")
+  if (length(target) != ncol(dataset)){
+    stop("length of target must equal ncol(dataset).")
   }
   
   target <- c(1, target)
