@@ -73,48 +73,32 @@ $$
 \begin{aligned}
 D(p||q) 
 &= \sum_{i = 1}^n p_i \log \frac{p_i}{q_i} \\
+&= \sum_{i = 1}^n p_i \log p_i - \sum_{i = 1}^n p_i \log q_i \\
+&=  \sum_{i = 1}^n \frac{1}{n} \log \frac{1}{n} - \frac{1}{n} \sum_{i = 1}^n \log q_i
 \end{aligned}
 $$
 
-After simplifying, this is the same as maximizing the objective function
-
-$$
-\begin{aligned}
-J(q) &= \sum_{i = 1}^n \log q_i
-\end{aligned}
-$$
-
-but this optimization problem has constraints:
+which is the same as minimizing $-\sum_{i = 1}^n \log q_i$. But this optimization problem has constraints:
 
 1. $\sum_{i = 1}^n q_i = 1$ ($q$ is a probability distribution).
-2. The expected column means from bootstrapping must reach the target.
+2. The expected column means from bootstrapping must reach the target: that is, $X'q = y$, where
 
-Both constraints are compactly summarized by the condition,
-
-$$
-X'q - t = 0
-$$
-where
-
-- $X'$ is the transpose of the matrix $X$.
-- $X = (Y, Z)$
-- $Y$ is a single column of $1$'s.
-- $Z$ is the original dataset.
-- $t = (1, u)$
-- $u$ is the vector of desired column means for the bootstraped datasets.
+    - $X'$ is the transpose of the original dataset $X$, and 
+    - $y$ is the vector of target bootstrap column means.
 
 The Lagrangian for this optimization is
 
 $$
 \begin{aligned}
-L(q, \lambda) &= \sum_{i = 1}^n \log q_i + \lambda (X'q - t) \\
-&= \sum_{i = 1}^n \left [ \log q_i + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ]
+L(q, \lambda) &= -\sum_{i = 1}^n \log q_i + \lambda_0 \left (1' q - 1 \right ) + \lambda (X'q - y) \\
+&= \sum_{i = 1}^n \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right ) + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - y_k) \right ]
 \end{aligned}
 $$
 
 where 
 
-- $\lambda$ is the Lagrange multiplier, a vector of length $K$.
+- The scalar $\lambda_0$ and the vector $\lambda$ together are the Lagrange multiplier.
+- $\lambda$ is a vector of length $K$.
 - $K$ is the number of columns of $X$.
 - $X_{ik}$ is the element of $X$ in row $i$ and column $k$.
 
@@ -123,19 +107,21 @@ To optimize, we would ordinarily find the roots of $L$. However, this may not be
 $$
 \begin{aligned}
 0 &= \left . \frac{\partial L}{\partial q_i} \right |_{(q, \ \lambda)}  \\
-&= \frac{\partial}{\partial q_i} \sum_{i = 1}^n \left [ \log q_i + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ] \\
-&= \frac{\partial}{\partial q_i} \left [ \log q_i + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ] \\
-&= \frac{1}{q_i} + \sum_{k = 1}^K \lambda_k X_{ik}  \\
-&= \frac{1}{q_i} + X_i' \lambda
+&= \frac{\partial}{\partial q_i} \sum_{i = 1}^n \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right ) + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - y_k) \right ] \\
+&= \frac{\partial}{\partial q_i} \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right )  + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - y_k) \right ] \\
+&= -\frac{1}{q_i} + \lambda_0 + \sum_{k = 1}^K \lambda_k X_{ik}  \\
+&= -\frac{1}{q_i} + \lambda_0 + X_i' \lambda \\
+\frac{1}{q_i} &= \lambda_0 + X_i' \lambda \\
+q_i &= \frac{1}{\lambda_0 + X_i' \lambda}
 \end{aligned}
 $$
 
-Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector). Hence, the locally optimal $q$ in terms of $\lambda$ is 
+Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector).  Hence, the locally optimal $q$ in terms of $\lambda$ is 
 
-$$q^*(\lambda) = \left ( \frac{1}{X_1' \lambda}, \ldots, \frac{1}{X_n' \lambda} \right ) $$
+$$q^*(\lambda) = \left (\frac{1}{\lambda_0 + X_1' \lambda}, \ldots, \frac{1}{ \lambda_0 + X_n' \lambda} \right ) $$
 
 To get the best $q^*(\lambda)$, we choose the $\lambda^*$ that minimizes the objective function
 
-$$J(\lambda) = ||X'q^*(\lambda) - t||_2$$
+$$||X'q^*(\lambda) - y||_2$$
 
 where $||\cdot||_2$ is the $L_2$ norm. Finally, we take our twisted bootstrap resampling distribution to be $q^*(\lambda^*)$.
