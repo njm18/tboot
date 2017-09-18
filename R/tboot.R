@@ -4,20 +4,21 @@
 #' @seealso \code{\link{tweights}}
 #' @export
 #' @param dataset Data frame or matrix to bootstrap.
-#' @param p numeric vector of row weights for resampling.
+#' @param weights numeric vector of row weights for resampling.
 #' Must have length \code{nrow(dataset)}
-#' @param n number of rows in the new bootstrapped dataset.
+#' @param nrow number of rows in the new bootstrapped dataset.
 tboot <- function(
   dataset,
-  p = rep(1 / nrow(dataset), nrow(dataset)),
-  n = nrow(dataset)) {
-  if (length(p) != nrow(dataset)){
-    stop("length of p must equal nrow(dataset).")
+  weights = rep(1 / nrow(dataset), nrow(dataset)),
+  nrow = nrow(dataset)) {
+  nweights <- length(weights)
+  if (nweights != nrow(dataset)){
+    stop("length of weights must be nrow(dataset).")
   }
   index <- sample.int(
-    n = length(p),
-    size = n,
-    prob = p,
+    n = nweights,
+    size = nrow,
+    prob = weights,
     replace = TRUE
   )
   dataset[index, ]

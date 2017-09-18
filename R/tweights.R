@@ -23,7 +23,8 @@
 tweights <- function(
   dataset,
   target = apply(dataset, 2, mean),
-  max_iter = 1e5){
+  max_iter = 1e5
+  ){
 
   if (length(target) != ncol(dataset)){
     stop("length of target must equal ncol(dataset).")
@@ -45,7 +46,7 @@ tweights <- function(
 
   start <- rep(1, ncol(x))
 
-  #Find the lagrange multipliers (lambda) wich satisfy the constraint closely.
+  # Find the lagrange multipliers (lambda) wich satisfy the constraint closely.
   tmp <- optim(
     par = start,
     fn = heuristic
