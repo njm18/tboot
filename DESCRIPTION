@@ -20,6 +20,9 @@ Description: Weighted resampling of data rows
 License: GPL-3
 Depends:
   R (>= 3.2.0)
+Imports:
+  bindata,
+  stats
 Suggests:
   knitr,
   rmarkdown,
