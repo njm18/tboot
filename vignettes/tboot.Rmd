@@ -1,0 +1,141 @@
+---
+title: "Twisted Bootstrap"
+author: "Will Landau"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tboot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Twisted Bootstrap
+
+The twisted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows in such a way that the column means approximate a user-defined target. In other words, you can control the marginal means while still preserving intricate relationships among the variables.
+
+# Example
+
+```{r setup, cache = TRUE}
+library(tboot)
+set.seed(2017)
+```
+
+Simulate a dataset.
+
+```{r sim, cache = TRUE}
+dataset <- dichotomous(nrow = 50)
+```
+
+The variables are dichotomous.
+
+```{r dataset, cache = TRUE}
+head(dataset)
+colMeans(dataset)
+```
+
+In the bootstrapped dataset, we want all the column means to be around 0.5.
+
+```{r target, cache = TRUE}
+target <- rep(0.5, ncol(dataset))
+```
+
+Get the row-level resampling weights. The weights are as close to uniform as possible while still making sure the bootstrap approximates the target column means.
+
+```{r weights, cache = TRUE}
+weights <- tweights(dataset = dataset, target = target)
+```
+
+Bootstrap the rows of the dataset using the weights.
+
+```{r boot, cache = TRUE}
+boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
+```
+
+The column means are close to the target even though all the rows came from the original data.
+
+```{r compare, cache = TRUE}
+colMeans(boot)
+```
+
+# Methodology
+
+The goal is to find a bootstrap resampling distribution that
+
+1. is close to uniform. That way, the twisted bootstrap is as close to an ordinary bootstrap as possible.
+2. generates bootstrap datasets with the desired column means.
+
+
+Let $q = (q_1, \ldots, q_n)$ be the resampling distribution. Here, $n$ is the number of rows in the original dataset, and $q_i$ is the probability that row $i$ will be chosen for a given row of the bootstrap dataset. Let $p = (p_1, \ldots, p_n)$ ($p_i = 1/n$) be uniform: i.e., the resampling distribution of the ordinary bootstrap. 
+
+We want to find a $q$ that is as close to $p$ as possible. This amounts to minimizing the Kullback-Leibler divergence from $p$ to $q$. 
+
+$$
+\begin{aligned}
+D(p||q) 
+&= \sum_{i = 1}^n p_i \log \frac{p_i}{q_i} \\
+\end{aligned}
+$$
+
+After simplifying, this is the same as maximizing the objective function
+
+$$
+\begin{aligned}
+J(q) &= \sum_{i = 1}^n \log q_i
+\end{aligned}
+$$
+
+but this optimization problem has constraints:
+
+1. $\sum_{i = 1}^n q_i = 1$ ($q$ is a probability distribution).
+2. The expected column means from bootstrapping must reach the target.
+
+Both constraints are compactly summarized by the condition,
+
+$$
+X'q - t = 0
+$$
+where
+
+- $X'$ is the transpose of the matrix $X$.
+- $X = (Y, Z)$
+- $Y$ is a single column of $1$'s.
+- $Z$ is the original dataset.
+- $t = (1, u)$
+- $u$ is the vector of desired column means for the bootstraped datasets.
+
+The Lagrangian for this optimization is
+
+$$
+\begin{aligned}
+L(q, \lambda) &= \sum_{i = 1}^n \log q_i + \lambda (X'q - t) \\
+&= \sum_{i = 1}^n \left [ \log q_i + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ]
+\end{aligned}
+$$
+
+where 
+
+- $\lambda$ is the Lagrange multiplier, a vector of length $K$.
+- $K$ is the number of columns of $X$.
+- $X_{ik}$ is the element of $X$ in row $i$ and column $k$.
+
+To optimize, we would ordinarily find the roots of $L$. However, this may not be possible. Instead, we relax the constraints. First, we set the gradient of $L$ equal to zero and solve for a locally optimal $q$ in terms of $\lambda$.
+
+$$
+\begin{aligned}
+0 &= \left . \frac{\partial L}{\partial q_i} \right |_{(q, \ \lambda)}  \\
+&= \frac{\partial}{\partial q_i} \sum_{i = 1}^n \left [ \log q_i + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ] \\
+&= \frac{\partial}{\partial q_i} \left [ \log q_i + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ] \\
+&= \frac{1}{q_i} + \sum_{k = 1}^K \lambda_k X_{ik}  \\
+&= \frac{1}{q_i} + X_i' \lambda
+\end{aligned}
+$$
+
+Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector). Hence, the locally optimal $q$ in terms of $\lambda$ is 
+
+$$q^*(\lambda) = \left ( \frac{1}{X_1' \lambda}, \ldots, \frac{1}{X_n' \lambda} \right ) $$
+
+To get the best $q^*(\lambda)$, we choose the $\lambda^*$ that minimizes the objective function
+
+$$J(\lambda) = ||X'q^*(\lambda) - t||_2$$
+
+where $||\cdot||_2$ is the $L_2$ norm. Finally, we take our twisted bootstrap resampling distribution to be $q^*(\lambda^*)$.

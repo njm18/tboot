@@ -1,6 +1,6 @@
 #' @title Function tboot
-#' @description Bootstrap \code{n} rows of \code{dataset} using
-#' weights \code{p}.
+#' @description Bootstrap \code{nrow} rows of \code{dataset} using
+#' the given row-level weights.
 #' @seealso \code{\link{tweights}}
 #' @export
 #' @param dataset Data frame or matrix to bootstrap.
