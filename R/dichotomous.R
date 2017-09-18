@@ -46,15 +46,15 @@ dichotomous <- function(
   #   2. Prob(x3 = 1 | x1 = 1) = Prob(x3 = 1 and x1 = 1) / Prob(x1 = 1)
   #                            = Prob(x3 = 1) / Prob(x1 = 1)
   x3 <- rep(0, nrow)
-  x3[x1 == 1] <- rbinom(n = sum(x1), size = 1, prob = probs[3]/probs[1])
+  x3[x1 == 1] <- rbinom(n = sum(x1), size = 1, prob = probs[3] / probs[1])
 
   # x4 is likewise nested in x1.
   x4 <- rep(0, nrow)
-  x4[x1 == 1] <- rbinom(n = sum(x1), size = 1, prob = probs[4]/probs[1])
+  x4[x1 == 1] <- rbinom(n = sum(x1), size = 1, prob = probs[4] / probs[1])
 
   # x5 is nested in both x2.
   x5 <- rep(0, nrow)
-  x5[x2 == 1] <- rbinom(n = sum(x2), size = 1, prob = probs[5]/probs[2])
+  x5[x2 == 1] <- rbinom(n = sum(x2), size = 1, prob = probs[5] / probs[2])
 
   data.frame(
     x1 = x1,

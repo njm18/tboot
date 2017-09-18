@@ -29,7 +29,7 @@ tweights <- function(
   if (length(target) != ncol(dataset)){
     stop("length of target must equal ncol(dataset).")
   }
-  
+
   target <- c(1, target)
   x <- as.matrix(
     cbind(
@@ -60,14 +60,6 @@ tweights <- function(
       maxit = max_iter
     )
   )
-
-  if (optimum_lambda$convergence > 0) {
-    warning(
-      "convergence was ",
-      optimum_lambda$convergence,
-      " in optim()."
-    )
-  }
 
   argmin_lagrangian(x, optimum_lambda$par)
 }

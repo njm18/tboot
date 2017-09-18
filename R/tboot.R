@@ -10,7 +10,7 @@
 tboot <- function(
   dataset,
   weights = rep(1 / nrow(dataset), nrow(dataset)),
-  nrow = nrow(dataset)) {
+  nrow = base::nrow(dataset)) {
   nweights <- length(weights)
   if (nweights != nrow(dataset)){
     stop("length of weights must be nrow(dataset).")

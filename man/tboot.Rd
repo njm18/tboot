@@ -5,7 +5,7 @@
 \title{Function tboot}
 \usage{
 tboot(dataset, weights = rep(1/nrow(dataset), nrow(dataset)),
-  nrow = nrow(dataset))
+  nrow = base::nrow(dataset))
 }
 \arguments{
 \item{dataset}{Data frame or matrix to bootstrap.}
