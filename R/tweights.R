@@ -23,12 +23,13 @@
 tweights <- function(
   dataset,
   target = apply(dataset, 2, mean),
-  max_iter = 1e5){
+  max_iter = 1e5
+  ){
 
   if (length(target) != ncol(dataset)){
     stop("length of target must equal ncol(dataset).")
   }
-  
+
   target <- c(1, target)
   x <- as.matrix(
     cbind(
@@ -37,36 +38,25 @@ tweights <- function(
     )
   )
 
-  heuristic <- function(lambda) {
-    sum(
-      (constraint_value(x, lambda) - target) ^ 2
-    )
+  objective_lambda <- function(lambda) {
+    objective_function(x = x, lambda = lambda, target = target)
   }
 
-  start <- rep(1, ncol(x))
-
-  #Find the lagrange multipliers (lambda) wich satisfy the constraint closely.
+  # Find the lagrange multipliers (lambda) wich satisfy the constraint closely.
   tmp <- optim(
-    par = start,
-    fn = heuristic
+    par = starting_values(x),
+    fn = objective_lambda
   )
 
   optimum_lambda <- optim(
     par = tmp$par,
-    fn = heuristic,
+    fn = objective_lambda,
     method = "BFGS",
     control = list(
       maxit = max_iter
     )
   )
 
-  if (optimum_lambda$convergence > 0) {
-    warning(
-      "convergence was ",
-      optimum_lambda$convergence,
-      " in optim()."
-    )
-  }
-
-  argmin_lagrangian(x, optimum_lambda$par)
+  out <- argmin_lagrangian(x, optimum_lambda$par)
+  out / sum(out)
 }

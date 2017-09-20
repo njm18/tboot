@@ -4,15 +4,16 @@
 \alias{tboot}
 \title{Function tboot}
 \usage{
-tboot(dataset, p = rep(1/nrow(dataset), nrow(dataset)), n = nrow(dataset))
+tboot(dataset, weights = rep(1/nrow(dataset), nrow(dataset)),
+  nrow = base::nrow(dataset))
 }
 \arguments{
 \item{dataset}{Data frame or matrix to bootstrap.}
 
-\item{p}{numeric vector of row weights for resampling.
+\item{weights}{numeric vector of row weights for resampling.
 Must have length \code{nrow(dataset)}}
 
-\item{n}{number of rows in the new bootstrapped dataset.}
+\item{nrow}{number of rows in the new bootstrapped dataset.}
 }
 \description{
 Bootstrap \code{n} rows of \code{dataset} using
