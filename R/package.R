@@ -9,4 +9,5 @@
 #' @references \url{https://github.com/wlandau-lilly/tboot}
 #' @importFrom bindata rmvbin
 #' @importFrom stats optim rbinom
+#' @importFrom kernlab ipop primal how
 NULL

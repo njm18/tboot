@@ -4,32 +4,37 @@
 \alias{tweights}
 \title{Function \code{tweights}}
 \usage{
-tweights(dataset, target = apply(dataset, 2, mean), max_iter = 1e+05)
+tweights(dataset, target = apply(dataset, 2, mean), distance = "euchlidean",
+  control = list(maxit = 10000, reltol = 1e-16), tol = 1e-05)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
 
 \item{target}{Numeric vector of target column means.}
 
-\item{max_iter}{Maximum number of iterations for \code{optim()}.}
+\item{distance}{The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler).}
+
+\item{control}{Controll prameter to be passed into the  number of iterations for \code{optConstr()}.}
 }
 \description{
-Compute edge weights \code{p}
-such that the column means of
-\code{tboot(dataset = dataset, p = p)}
+Compute reweighted resampling scheme where each sample has probability \code{p} of being resampled
+such that the column means of \code{tboot(dataset = dataset, p = p)}
 equal \code{target} on average.
 }
 \details{
-This function minimizes the Kullback-Leibler divergence
-between two sampling schemes:
- (P_C) classic resampling with each observation sampled with equal prob
- (P_W) weighted resampling with each sample i getting a different prob (p_i)
-      D(P_C||P_W)=sum_i log(1/n) - log(p_i)
-The function finds p_i such that:
+This function minimizes the distance between between two sampling schemes. Let r_i = 1/n be
+the probability of sampling subject i from a dataset with n individuals in the classic resampling with replacement scheme.
+Also, let p_i be the probability of sampling subject i from a dataset with n individuals in the classic resampling with replacement scheme.
+We consider two different distance measures:
+  d_euclidian(r,p) = sqrt( sum_i (v_i-r_i)^2 )
+  d_kl(r,p) = sum_i (log(1/n) - log(p_i))
+The \code{tweights} function finds p_i such which minimizes  d_euclidian(r,p) subject to the constraint that:
       sum_i p_i = 1
       dataset' p = target
-  where dataset is a N x K matrix of clinical variables.
-  Optimization is perfromed by utilizing lagrange multipliers
+  where dataset is a N x K matrix of clinical variables input to the function.
+Optimization for euclidean distance is a quadratic program and utilizes the ipop function in kernLab.
+The euclidean based solution helps form a starting value which is used along with the constOptim function 
+and lagrange multipliers to solve the Kullback-Leibler distance optimization.
   Output is the optimal porbability (p)
 }
 \seealso{

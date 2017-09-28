@@ -16,8 +16,8 @@ Must have length \code{nrow(dataset)}}
 \item{nrow}{number of rows in the new bootstrapped dataset.}
 }
 \description{
-Bootstrap \code{n} rows of \code{dataset} using
-weights \code{p}.
+Bootstrap \code{nrow} rows of \code{dataset} using
+the given row-level weights.
 }
 \seealso{
 \code{\link{tweights}}

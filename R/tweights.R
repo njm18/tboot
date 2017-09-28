@@ -1,62 +1,138 @@
 #' @title Function \code{tweights}
-#' @description Compute edge weights \code{p}
-#' such that the column means of
-#' \code{tboot(dataset = dataset, p = p)}
+#' @description Compute reweighted resampling scheme where each sample has probability \code{p} of being resampled
+#' such that the column means of \code{tboot(dataset = dataset, p = p)}
 #' equal \code{target} on average.
 #' @seealso \code{\link{tboot}}
 #' @export
 #' @param dataset Data frame or matrix to use to find row weights.
 #' @param target Numeric vector of target column means.
-#' @param max_iter Maximum number of iterations for \code{optim()}.
+#' @param distance The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler).
+#' @param control Controll prameter to be passed into the  number of iterations for \code{optConstr()}.
 #' @details
-#' This function minimizes the Kullback-Leibler divergence
-#' between two sampling schemes:
-#'  (P_C) classic resampling with each observation sampled with equal prob
-#'  (P_W) weighted resampling with each sample i getting a different prob (p_i)
-#'       D(P_C||P_W)=sum_i log(1/n) - log(p_i)
-#' The function finds p_i such that:
+#' This function minimizes the distance between between two sampling schemes. Let r_i = 1/n be
+#' the probability of sampling subject i from a dataset with n individuals in the classic resampling with replacement scheme.
+#' Also, let p_i be the probability of sampling subject i from a dataset with n individuals in the classic resampling with replacement scheme.
+#' We consider two different distance measures:
+#'   d_euclidian(r,p) = sqrt( sum_i (v_i-r_i)^2 )
+#'   d_kl(r,p) = sum_i (log(1/n) - log(p_i))
+#' The \code{tweights} function finds p_i such which minimizes  d_euclidian(r,p) subject to the constraint that:
 #'       sum_i p_i = 1
 #'       dataset' p = target
-#'   where dataset is a N x K matrix of clinical variables.
-#'   Optimization is perfromed by utilizing lagrange multipliers
+#'   where dataset is a N x K matrix of clinical variables input to the function.
+#' Optimization for euclidean distance is a quadratic program and utilizes the ipop function in kernLab.
+#' The euclidean based solution helps form a starting value which is used along with the constOptim function 
+#' and lagrange multipliers to solve the Kullback-Leibler distance optimization.
 #'   Output is the optimal porbability (p)
+#'   
+
 tweights <- function(
   dataset,
   target = apply(dataset, 2, mean),
-  max_iter = 1e5
-  ){
-
+  distance="euchlidean",
+  control = list(maxit=10000, reltol=1e-16),
+  tol=1e-5){
+  
+  #Chick input
   if (length(target) != ncol(dataset)){
     stop("length of target must equal ncol(dataset).")
   }
-
-  target <- c(1, target)
-  x <- as.matrix(
+  
+  #Mmake sure target is achievable
+  target = .how_close(dataset, target)
+  
+  #Include probability constraint to sum to 1
+  b <- c(1, target)
+  A <- t(as.matrix(
     cbind(
       int = 1,
       dataset
     )
-  )
+  ))
+  n=nrow(dataset)
+  
+  #Find best weights usingn euchlidian distance
+  opt = ipop(c=rep(-1/n,n), H=diag(n),
+             A=A, b=b, r=rep(0, length(b)),
+             l=rep(0,n), u=rep(1,n)) 
+  
+  
+  if(how(opt)!="converged")
+    stop("'ipop' did not converge.")
+  
+  if(distance=="euchlidean") {
+    return(primal(opt))
+  } else if(distance=="kl") {
+    
+    for(i in 10:1) {
+      pi=((i-1)*n*primal(opt)+1)/(i*n) # slightly regularize to form a valid starting value
+      lambdaStart= as.vector( solve(tcrossprod(A), A %*% (1/pi ) ) )
+      pi=as.vector(1/( lambdaStart %*% A))
+      if(all(pi>=0))
+        break
+    }
+    
+    
+    #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
+    s=svd(t(A))
+    vdinv = s$v %*% diag(1/s$d)
+    keep =  abs(s$d) > 1e-6 
+    x_star = (t(A) %*% vdinv )[,keep]
+    target_star =   as.vector(t(vdinv) %*% b)[keep]
+    start_star =  as.vector(solve(vdinv, lambdaStart))[keep]
+    
+    #Optimize constraining to the feasible space where the probability is posative
+    dist=function(lambda) {
+      pi=as.vector(1/(x_star %*% lambda))
+      return(sqrt( sum( ( pi %*% x_star -target_star)^2) ))
+    }
+    optConstr = constrOptim(start_star, dist, grad=NULL, ui=x_star, ci=rep(-1,n), control=control,  outer.eps = 1e-11)
+    
+    
+    
+    if(optConstr$convergence>0 || optConstr$value >tol) {
+      grad=function(lambda) {
+        pi=as.vector(1/(x_star %*% lambda))
+        dif=pi %*% x_star -target_star
+        d= t(x_star) %*% (x_star*pi^2) 
+        return(-(dif) %*% d / sqrt(sum(dif^2)))
+      }
+      optConstr2 = constrOptim(optConstr$par, dist, grad=grad, ui=x_star, ci=rep(-1,n), control=control, method="BFGS")
+      if(optConstr2$convergence>0 || optConstr2$value >tol) {
+        optConstr3 = optim(optConstr2$par, dist, gr=grad, control=control, method="BFGS")
+        
+        if(optConstr3$convergence>0)
+          stop("Convergence not reached using 'constrOptim' or 'optim' functions.")
+        if( optConstr3$value >tol)
+          stop("Unable to find a close enough optima. Adjust tolerance to avoid this error.")
+      }
+    }
+    ret=as.vector(1/(x_star %*% optConstr$par))
+    if(any(ret<0))
+      stop("Optimization failed.")
+    return(as.vector(1/(x_star %*% optConstr$par)))
+  } else
+    stop("distance must be 'kl' or 'euchlidean.'")
+  
+}
 
-  objective_lambda <- function(lambda) {
-    objective_function(x = x, lambda = lambda, target = target)
+
+
+.how_close <- function(dataset, target) {
+  xstar=scale(dataset, center = FALSE)
+  scl=attr(xstar,"scaled:scale")
+  targetstar=target/scl
+  #optimize and check convergence
+  opt = ipop(c=-as.vector(xstar %*% targetstar), H=t(xstar),
+             A=matrix(1,1,nrow(xstar)), b=1, r=0,
+             l=rep(0,nrow(xstar)), u=rep(1,nrow(xstar)) )
+  if(how(opt)!="converged")
+    stop("'ipop' did not converge.")
+  
+  best=as.vector(t(xstar) %*% primal(opt))*scl
+  if(sqrt(sum((best-target)^2))<1e-5)
+    return(target)
+  else {
+    warning("Target is not achievable. Replacing with the nearest achievable target in terms of scaled euclidian distance.")
+    return(best)
   }
-
-  # Find the lagrange multipliers (lambda) wich satisfy the constraint closely.
-  tmp <- optim(
-    par = starting_values(x),
-    fn = objective_lambda
-  )
-
-  optimum_lambda <- optim(
-    par = tmp$par,
-    fn = objective_lambda,
-    method = "BFGS",
-    control = list(
-      maxit = max_iter
-    )
-  )
-
-  out <- argmin_lagrangian(x, optimum_lambda$par)
-  out / sum(out)
 }
