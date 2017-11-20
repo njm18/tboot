@@ -1,24 +1,27 @@
 #' @title Function \code{tweights}
-#' @description Compute reweighted resampling scheme where each sample has probability \code{p} of being resampled
+#' @description Returns a vector \code{p} of resampling probabilities 
 #' such that the column means of \code{tboot(dataset = dataset, p = p)}
-#' equal \code{target} on average.
+#' equals \code{target} on average.
 #' @seealso \code{\link{tboot}}
 #' @export
 #' @param dataset Data frame or matrix to use to find row weights.
 #' @param target Numeric vector of target column means.
 #' @param distance The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler).
-#' @param control Controll prameter to be passed into the  number of iterations for \code{optConstr()}.
+#' @param control Controll prameter to be passed into \code{optConstr()}.
+#' @param tol Tolerance.
 #' @details
-#' This function minimizes the distance between between two sampling schemes. Let r_i = 1/n be
-#' the probability of sampling subject i from a dataset with n individuals in the classic resampling with replacement scheme.
-#' Also, let p_i be the probability of sampling subject i from a dataset with n individuals in the classic resampling with replacement scheme.
-#' We consider two different distance measures:
-#'   d_euclidian(r,p) = sqrt( sum_i (v_i-r_i)^2 )
-#'   d_kl(r,p) = sum_i (log(1/n) - log(p_i))
-#' The \code{tweights} function finds p_i such which minimizes  d_euclidian(r,p) subject to the constraint that:
-#'       sum_i p_i = 1
-#'       dataset' p = target
-#'   where dataset is a N x K matrix of clinical variables input to the function.
+#' Let \eqn{p_i = 1/n} be  probability of sampling subject \eqn{i} from a dataset with \eqn{n} individuals (i.e. rows of the dataset) in the classic resampling with replacement scheme.
+#' Also, let \eqn{q_i} be the probability of sampling subject \eqn{i} from a dataset with \eqn{n} individuals in our new resampling scheme. Let \eqn{d(q,p)} represent a distance between the two resampling schemes.  The \code{tweights}
+#' function seeks to solve the problem: 
+#' \deqn{q = argmin_p d(q,p)}
+#' Subject to the constraint that:
+#' \deqn{ sum_i q_i = 1} and
+#' \deqn{  dataset' q = target}
+#' where dataset is a n x K matrix of variables input to the function.
+#' 
+#'   \deqn{d_euclidian(q,p) = sqrt( sum_i (p_i-q_i)^2 )}
+#'   \deqn{d_kl(q,p) = sum_i (log(p_i) - log(q_i))}
+#'
 #' Optimization for euclidean distance is a quadratic program and utilizes the ipop function in kernLab.
 #' The euclidean based solution helps form a starting value which is used along with the constOptim function 
 #' and lagrange multipliers to solve the Kullback-Leibler distance optimization.
@@ -32,12 +35,12 @@ tweights <- function(
   control = list(maxit=10000, reltol=1e-16),
   tol=1e-5){
   
-  #Chick input
+  #Check input
   if (length(target) != ncol(dataset)){
     stop("length of target must equal ncol(dataset).")
   }
   
-  #Mmake sure target is achievable
+  #Make sure target is achievable
   target = .how_close(dataset, target)
   
   #Include probability constraint to sum to 1

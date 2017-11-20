@@ -65,35 +65,46 @@ The goal is to find a bootstrap resampling distribution that
 2. generates bootstrap datasets with the desired column means.
 
 
-## The ideal optimization problem
+## Stating the optimization problem
 
-Let $q = (q_1, \ldots, q_n)$ be the resampling distribution. Here, $n$ is the number of rows in the original dataset, and $q_i$ is the probability that row $i$ will be chosen for a given row of the bootstrap dataset. Let $p = (p_1, \ldots, p_n)$ ($p_i = 1/n$) be uniform: i.e., the resampling distribution of the ordinary bootstrap. 
+Let $q = (q_1, \ldots, q_n)$ be the resampling distribution. Here, $n$ is the number of rows in the original dataset, and $q_i$ is the probability that row $i$ will be chosen for a given row of the bootstrap dataset. Let $p = (p_1, \ldots, p_n)$ be uniform (i.e., $p_i = 1/n$, the resampling distribution of the ordinary bootstrap). 
 
-We want to find a $q$ that is as close to $p$ as possible. This amounts to minimizing the Kullback-Leibler divergence from $p$ to $q$. 
+We want to find a $q$ that is as close to $p$ as possible. We consider two possible measures of distance. First, the Euclidian distance is defined as:
+$$
+D_{Euclidian}= \sum_{i = 1}^n (p_i - q_i)^2
+$$
+Second, the Kullback-Leibler (KL) divergence (wich is technically not considered a distance metric) from $p$ to $q$ is defined as: 
 
 $$
 \begin{aligned}
-D(p||q) 
+D_{KL}(p||q) 
 &= \sum_{i = 1}^n p_i \log \frac{p_i}{q_i} \\
-&= \sum_{i = 1}^n p_i \log p_i - \sum_{i = 1}^n p_i \log q_i \\
 &=  \sum_{i = 1}^n \frac{1}{n} \log \frac{1}{n} - \frac{1}{n} \sum_{i = 1}^n \log q_i
 \end{aligned}
 $$
 
-which is the same as minimizing $-\sum_{i = 1}^n \log q_i$. But this optimization problem has constraints:
+Note that minimizing D_{KL}(p||q) is the same as minimizing $-\sum_{i = 1}^n \log q_i$.
 
-1. $\sum_{i = 1}^n q_i = 1$ ($q$ is a probability distribution).
-2. The expected column means from bootstrapping must reach the target: that is, $X'q = y$, where
+Thus the goal may be formulated as a constrained optimization proplem:
+$$
+q=\underset{q \in S}{\operatorname{argmin}} {D(p,q)}
+$$
+where,
 
-    - $X'$ is the transpose of the original dataset $X$, and 
-    - $y$ is the vector of target bootstrap column means.
+$$
+S=\{q|\space q_i>0 \space for \space i \in {1...n}, \space and \space  \sum_{i = 1}^n q_i=1, \space and \space X'q = y \space \}.
+$$
+Here $y$ is a vector of target means for the columns.
 
-The Lagrangian for this optimization is
+## Solving the optimization problem
+In the case of the Euclidian distance the problem is a standard "Quadratic Programing" problem which we solve using the 'ipop' function in the 'kernlap' package.
+
+To solve the problem for the KL distance, we use the lagrangian approach. The Lagrangian for this optimization problem is
 
 $$
 \begin{aligned}
 L(q, \lambda) &= -\sum_{i = 1}^n \log q_i + \lambda_0 \left (1' q - 1 \right ) + \lambda (X'q - y) \\
-&= \sum_{i = 1}^n \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right ) + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - y_k) \right ]
+&= \sum_{i = 1}^n \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right ) + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ]
 \end{aligned}
 $$
 
@@ -104,16 +115,12 @@ where
 - $K$ is the number of columns of $X$.
 - $X_{ik}$ is the element of $X$ in row $i$ and column $k$.
 
-## The locally optimal resampling distribution
 
 To optimize, we would ordinarily find the roots of $L$. However, this may not be possible. Instead, we relax the constraints. First, we set the gradient of $L$ equal to zero and solve for a locally optimal $q$ in terms of $\lambda$.
 
 $$
 \begin{aligned}
 0 &= \left . \frac{\partial L}{\partial q_i} \right |_{(q, \ \lambda)}  \\
-&= \frac{\partial}{\partial q_i} \sum_{i = 1}^n \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right ) + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - y_k) \right ] \\
-&= \frac{\partial}{\partial q_i} \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right )  + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - y_k) \right ] \\
-&= -\frac{1}{q_i} + \lambda_0 + \sum_{k = 1}^K \lambda_k X_{ik}  \\
 &= -\frac{1}{q_i} + \lambda_0 + X_i' \lambda \\
 \frac{1}{q_i} &= \lambda_0 + X_i' \lambda \\
 q_i &= \frac{1}{\lambda_0 + X_i' \lambda}
@@ -124,7 +131,6 @@ Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector).  Hence, the
 
 $$q^*(\lambda) = \left (\frac{1}{\lambda_0 + X_1' \lambda}, \ldots, \frac{1}{ \lambda_0 + X_n' \lambda} \right ) $$
 
-## The real optimization problem
 
 To get the best $q^*(\lambda)$, we choose the $\lambda^*$ that minimizes the objective function
 
@@ -133,31 +139,19 @@ $$||Xq^*(\lambda) - y||_2$$
 where $||\cdot||_2$ is the $L_2$ norm. After we use numerical optimization to find a good enough $\lambda^*$, we take our twisted bootstrap resampling distribution to be $q^*(\lambda^*)$.
 
 ## Starting values for $\lambda$
+Starting values for $\lambda$ are created heuristically from the Euclidian solution to the problem.
 
-In the numerical optimization, we should start from a uniform resampling distribution.
 
+## Not full rank
+If the data matrix is not full rank tweights will fail. Consider reducing the number of columns being constrained to deal with this issue.
+
+## Constraint not achievable
+Sometimes the desired constraint may not be achievable. If this is the case, tweights will give a warning, then it will find the "closest" achievable constraint. "Closest" is measured by a weighted euclidian distance. Thus the target ($y$) is replaced with:
 $$
-\begin{aligned}
-\frac{1}{n} &= q_i^*(\lambda) \\
-&= \frac{1}{\sum_{k = 1}^K \lambda_k X_{ik}} \\
-n &= \sum_{k = 1}^K \lambda_k X_{ik}
-\end{aligned}
+y_{new}=X'q^*
 $$
-
-Letting $J_{n \times 1}$ be the length-$n$ column vector of ones,
-
+where
 $$
-\begin{aligned}
-n J_{n \times 1} &= X \lambda
-\end{aligned}
+q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
 $$
-
-This is a regression of $n J_{n \times 1}$ on $X$, which should have the solution 
-
-$$
-\begin{aligned}
-\widehat{\lambda} &= \left (X'X \right )^{-} X' n J_{n \times 1}
-\end{aligned}
-$$
-
-where $M^{-}$ is the generalized inverse of matrix $M$.
+and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal matrix with diagonal entries $W_kk=1/sd_k$ where $sd_k$ is the standard deviation of column $k$ from the data matrix ($X$).
