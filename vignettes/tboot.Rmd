@@ -1,6 +1,6 @@
 ---
 title: "Twisted Bootstrap"
-author: "Will Landau"
+author: "Will Landau, Nathan Morris"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -23,7 +23,7 @@ set.seed(2017)
 Simulate a dataset.
 
 ```{r sim, cache = TRUE}
-dataset <- dichotomous(nrow = 50)
+dataset <- dichotomous(nrow = 200)
 ```
 
 The variables are dichotomous.
@@ -36,7 +36,7 @@ colMeans(dataset)
 In the bootstrapped dataset, we want all the column means to be around 0.5.
 
 ```{r target, cache = TRUE}
-target <- rep(0.5, ncol(dataset))
+target <- rep(0.4, ncol(dataset))
 ```
 
 Get the row-level resampling weights. The weights are as close to uniform as possible while still making sure the bootstrap approximates the target column means.
@@ -56,6 +56,15 @@ The column means are close to the target even though all the rows came from the 
 ```{r compare, cache = TRUE}
 colMeans(boot)
 ```
+
+The weights for each sample will now differ:
+```{r hist, cache = TRUE}
+hist(weights, breaks=25)
+abline(v=1/200,col="red")
+```
+
+The red line in the histogram above represents the probability for uniform resampling. We recomend against using the resampling methods implemented in this package when the weight of any one sample is too high. 
+
 
 # Methodology
 
@@ -138,10 +147,9 @@ $$||Xq^*(\lambda) - y||_2$$
 
 where $||\cdot||_2$ is the $L_2$ norm. After we use numerical optimization to find a good enough $\lambda^*$, we take our twisted bootstrap resampling distribution to be $q^*(\lambda^*)$.
 
-## Starting values for $\lambda$
 Starting values for $\lambda$ are created heuristically from the Euclidian solution to the problem.
 
-
+# Problems encountered for some data
 ## Not full rank
 If the data matrix is not full rank tweights will fail. Consider reducing the number of columns being constrained to deal with this issue.
 
@@ -154,4 +162,8 @@ where
 $$
 q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
 $$
-and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal matrix with diagonal entries $W_kk=1/sd_k$ where $sd_k$ is the standard deviation of column $k$ from the data matrix ($X$).
+and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal matrix with diagonal entries $W_{kk}=1/s^2_k$ where $s^2_k$ is the sample variance of column $k$ from the data matrix ($X$).
+
+## Unable to find an optimum
+For the KL dististance, the algorythm my fail to converge properly, and an error or warning will be issued.
+
