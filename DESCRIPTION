@@ -22,7 +22,9 @@ Depends:
   R (>= 3.2.0)
 Imports:
   bindata,
-  stats
+  stats,
+  quadprog,
+  kernlab
 Suggests:
   knitr,
   rmarkdown,

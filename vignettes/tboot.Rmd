@@ -1,6 +1,6 @@
 ---
 title: "Twisted Bootstrap"
-author: "Will Landau, Nathan Morris"
+author: "Nathan Morris, Will Landau"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -33,7 +33,7 @@ head(dataset)
 colMeans(dataset)
 ```
 
-In the bootstrapped dataset, we want all the column means to be around 0.5.
+In the bootstrapped dataset, we want all the column means to be around 0.4.
 
 ```{r target, cache = TRUE}
 target <- rep(0.4, ncol(dataset))
@@ -106,7 +106,7 @@ $$
 Here $y$ is a vector of target means for the columns.
 
 ## Solving the optimization problem
-In the case of the Euclidian distance the problem is a standard "Quadratic Programing" problem which we solve using the 'ipop' function in the 'kernlap' package.
+In the case of the Euclidian distance the problem is a standard "Quadratic Programing" problem which we solve using the 'solve.QP' function from the 'quadprog' package.
 
 To solve the problem for the KL distance, we use the lagrangian approach. The Lagrangian for this optimization problem is
 
@@ -162,8 +162,8 @@ where
 $$
 q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
 $$
-and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal matrix with diagonal entries $W_{kk}=1/s^2_k$ where $s^2_k$ is the sample variance of column $k$ from the data matrix ($X$).
+and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal matrix with diagonal entries $W_{kk}=1/s^2_k$ where $s^2_k$ is the sample variance of column $k$ from the data matrix ($X$). We solve this problem using the 'ipop' function in the 'kernlap' package. Note that 'kernlab' is used instead of 'quadprog' becuase the problem is not easily formulated using a full rank matrix for the quadratic form in the problem.
 
 ## Unable to find an optimum
-For the KL dististance, the algorythm my fail to converge properly, and an error or warning will be issued.
+For the KL dististance, the algorythm may fail to converge properly, and an error or warning will be issued. 
 

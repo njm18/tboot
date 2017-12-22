@@ -8,8 +8,15 @@ test_that("can bootstrap with correct weights", {
   x <- dichotomous(nrow = 1e3, probs = probs, prob12 = prob12)
 
   target <- c(.5, .7, .3, .3, .4)
-  weights <- tweights(dataset = x, target = target)
-  boot <- tboot(dataset = x, weights = weights, nrow = 1e6)
-  rates <- colMeans(boot)
-  expect_equal(unname(rates), target, tol = 1e-2)
+  weights_eu <- tweights(dataset = x, target = target)
+  weights_kl <- tweights(dataset = x, target = target)
+  
+  boot_eu <- tboot(dataset = x, weights = weights_eu, nrow = 1e6)
+  boot_kl <- tboot(dataset = x, weights = weights_kl, nrow = 1e6)
+  
+  rates_eu <- colMeans(boot_eu)
+  rates_kl <- colMeans(boot_eu)
+  
+  expect_equal(unname(rates_eu), target, tol = 1e-2)
+  expect_equal(unname(rates_kl), target, tol = 1e-2)
 })

@@ -3,7 +3,6 @@
 \docType{package}
 \name{tboot-package}
 \alias{tboot-package}
-\alias{drake}
 \title{Twisted Bootstrap.
 Weighted resampling of data rows
 to achieve target column means.}
