@@ -4,9 +4,8 @@
 \alias{tweights}
 \title{Function \code{tweights}}
 \usage{
-tweights(dataset, target = apply(dataset, 2, mean), distance = "euchlidean",
-  control = list(maxit = 10000, reltol = 1e-16), tol = 1e-05,
-  silent = FALSE)
+tweights(dataset, target = apply(dataset, 2, mean), distance = "kl",
+  maxit = 1000, tol = 1e-08, silent = FALSE)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
@@ -15,7 +14,7 @@ tweights(dataset, target = apply(dataset, 2, mean), distance = "euchlidean",
 
 \item{distance}{The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler).}
 
-\item{control}{Controll prameter to be passed into \code{optConstr()}.}
+\item{maxit}{Defines the maximum number of iterations for optimizing 'kl' distance.}
 
 \item{tol}{Tolerance. If the achieved mean is to far from the target (i.e. as defined by tol) an error will be thrown.}
 

@@ -92,7 +92,7 @@ D_{KL}(p||q)
 \end{aligned}
 $$
 
-Note that minimizing D_{KL}(p||q) is the same as minimizing $-\sum_{i = 1}^n \log q_i$.
+Note that minimizing $D_{KL}(p||q)$ is the same as minimizing $-\sum_{i = 1}^n \log q_i$.
 
 Thus the goal may be formulated as a constrained optimization proplem:
 $$
@@ -101,53 +101,52 @@ $$
 where,
 
 $$
-S=\{q|\space q_i>0 \space for \space i \in {1...n}, \space and \space  \sum_{i = 1}^n q_i=1, \space and \space X'q = y \space \}.
+S=\{q|\space q_i>0 \space for \space i \in {1...n}, \space and \space  \sum_{i = 1}^n q_i=1, \space and \space X^Tq = y \space \}.
 $$
 Here $y$ is a vector of target means for the columns.
 
 ## Solving the optimization problem
 In the case of the Euclidian distance the problem is a standard "Quadratic Programing" problem which we solve using the 'solve.QP' function from the 'quadprog' package.
 
-To solve the problem for the KL distance, we use the lagrangian approach. The Lagrangian for this optimization problem is
+To solve the problem for the KL distance, we use the lagrangian approach. Define $A=[X|1]$ (i.e. $A$ is the concatination of $X$ with a conformal column of all ones). Also, let $b=[y^T|1]^T$ (i.e $b$ is the $y$ vector with a one element concatinated to the end). The Lagrangian for this optimization problem is
 
 $$
 \begin{aligned}
-L(q, \lambda) &= -\sum_{i = 1}^n \log q_i + \lambda_0 \left (1' q - 1 \right ) + \lambda (X'q - y) \\
-&= \sum_{i = 1}^n \left [ -\log q_i + \lambda_0 \left ( q_i - \frac{1}{n} \right ) + \sum_{k = 1}^K \lambda_k (X_{ik} q_i - t_k) \right ]
+L(q, \lambda) &= -\sum_{i = 1}^n \log q_i + \lambda (A'q - b) \\
+&= \sum_{i = 1}^n \left [ -\log q_i +  \sum_{k = 1}^{K+1} \lambda_k (A_{ik} q_i - b_k) \right ]
 \end{aligned}
 $$
 
 where 
 
-- The scalar $\lambda_0$ and the vector $\lambda$ together are the Lagrange multiplier.
-- $\lambda$ is a vector of length $K$.
+- The vector $\lambda$ of length $K+1$ represents the Lagrange multipliers.
 - $K$ is the number of columns of $X$.
-- $X_{ik}$ is the element of $X$ in row $i$ and column $k$.
+- $A_{ik}$ is the element of $A$ in row $i$ and column $k$.
 
 
-To optimize, we would ordinarily find the roots of $L$. However, this may not be possible. Instead, we relax the constraints. First, we set the gradient of $L$ equal to zero and solve for a locally optimal $q$ in terms of $\lambda$.
+To optimize, we start by setting the gradient of $L$ equal to zero and solve for a locally optimal $q$ in terms of $\lambda$.
 
 $$
 \begin{aligned}
 0 &= \left . \frac{\partial L}{\partial q_i} \right |_{(q, \ \lambda)}  \\
-&= -\frac{1}{q_i} + \lambda_0 + X_i' \lambda \\
-\frac{1}{q_i} &= \lambda_0 + X_i' \lambda \\
-q_i &= \frac{1}{\lambda_0 + X_i' \lambda}
+&= -\frac{1}{q_i} + A_i' \lambda \\
+\frac{1}{q_i} &=   A_i' \lambda \\
+q_i &= \frac{1}{  A_i' \lambda}
 \end{aligned}
 $$
 
 Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector).  Hence, the locally optimal $q$ in terms of $\lambda$ is 
 
-$$q^*(\lambda) = \left (\frac{1}{\lambda_0 + X_1' \lambda}, \ldots, \frac{1}{ \lambda_0 + X_n' \lambda} \right ) $$
+$$q^*(\lambda) = \left (\frac{1}{A_1^T \lambda}, \ldots, \frac{1}{  A_n^T \lambda} \right ) $$
 
 
-To get the best $q^*(\lambda)$, we choose the $\lambda^*$ that minimizes the objective function
+To get the best $q^*(\lambda)$, we choose the $\lambda^*$ sucth that $$F(\lambda):=A^Tq^*(\lambda) - b=0.$$
 
-$$||Xq^*(\lambda) - y||_2$$
+We solve this problem by using a modification of Newton's method. Let $F'(\lambda)$ be the first derivative of $F(\lambda)$. We use the starting value of $\lambda^{(1)}=[0,..,0,1]$. At step $n+1$ the proposed value based on Newtons Method would be: $$\lambda^{(n+1)}_*=\lambda^{(n)}-[F'(\lambda^{(n)})]^{-1}F(\lambda^{(n)}).$$
+if $q^*(\lambda^{(n+1)}_*)$ is positive for all elements then we set $\lambda^{(n+1)}=\lambda^{(n+1)}_*$. Otherwise, we set  $\lambda^{(n+1)}=\alpha\lambda^{(n+1)}_*+ (1-\alpha)\lambda^{(n)}$ where alpha is set so that the step is half way to producing a negative probability.
 
-where $||\cdot||_2$ is the $L_2$ norm. After we use numerical optimization to find a good enough $\lambda^*$, we take our twisted bootstrap resampling distribution to be $q^*(\lambda^*)$.
 
-Starting values for $\lambda$ are created heuristically from the Euclidian solution to the problem.
+
 
 # Problems encountered for some data
 ## Not full rank

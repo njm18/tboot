@@ -12,10 +12,4 @@ objective_function <- function(x, lambda, target) {
   sum(squares)
 }
 
-# Start the optimization
-# at a uniform resampling distribution.
-# starting_values <- function(x){
-#   y <- rep(nrow(x), nrow(x))
-#   fit <- lm(as.formula("y ~ x - 1"))
-#   fit$coefficients
-# }
+

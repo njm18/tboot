@@ -8,8 +8,8 @@ test_that("can bootstrap with correct weights", {
   x <- dichotomous(nrow = 1e3, probs = probs, prob12 = prob12)
 
   target <- c(.5, .7, .3, .3, .4)
-  weights_eu <- tweights(dataset = x, target = target)
-  weights_kl <- tweights(dataset = x, target = target)
+  weights_eu <- tweights(dataset = x, target = target, distance = "euchlidean")
+  weights_kl <- tweights(dataset = x, target = target, distance="kl")
   
   boot_eu <- tboot(dataset = x, weights = weights_eu, nrow = 1e6)
   boot_kl <- tboot(dataset = x, weights = weights_kl, nrow = 1e6)
