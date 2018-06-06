@@ -2,6 +2,7 @@
 title: "Twisted Bootstrap"
 author: "Nathan Morris, Will Landau"
 date: "`r Sys.Date()`"
+bibliography: bibliography.bib
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{tboot}
@@ -11,41 +12,52 @@ vignette: >
 
 # Twisted Bootstrap
 
-The twisted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows in such a way that the column means approximate a user-defined target. In other words, you can control the marginal means while still preserving intricate relationships among the variables.
+The twisted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows in such a way that the column means approximate a user-defined target. In other words, you can control the marginal means while still preserving intricate relationships among the variables. The "Twisted Bootstrap" is related to the "Tilted Bootstrap" proposed by Efron and others [@efron1981nonparametric]. However, the "Twisted Bootstrap" is used in a multivariate situation and is intended for simulating future outcomes instead of making inference.
 
-# Example
+# A simulated example dataset
 
+
+As and example, we simulate the following simple dataset with some categorical, quantitative and binary variables.
 ```{r setup, cache = TRUE}
 library(tboot)
 set.seed(2017)
 ```
 
-Simulate a dataset.
-
 ```{r sim, cache = TRUE}
-dataset <- dichotomous(nrow = 200)
+color   <- sample(c("brown", "green", "blue"), 300, replace = TRUE)
+quant1  <- rnorm(300) + ifelse(color=="red", 1, 0)
+quant2  <- rnorm(300) + quant1*.5
+bin1    <- ifelse(quant1+rnorm(300) > 1, 1, 0)
+bin2    <- ifelse(quant2+rnorm(300) > 1, 1, 0)
+simData <- data.frame(color, quant1, quant2, bin1, bin2)
+head(simData)
 ```
 
-The variables are dichotomous.
+To use the 'tboot' package we must first code the variables as numeric matrix. To do this, we code the 'color' variable above with two dummy variables.
 
 ```{r dataset, cache = TRUE}
-head(dataset)
+dataset=as.matrix(cbind(
+    colorBlue=ifelse(simData$color=="blue",1,0),
+    colorBrown=ifelse(simData$color=="brown",1,0),
+    simData[,-1]))
 colMeans(dataset)
 ```
 
-In the bootstrapped dataset, we want all the column means to be around 0.4.
+# Example 1: Constraining the mean for a all of variables
+
+Suppose that, in the bootstrapped dataset, we want all the column means to be around 0.4.
 
 ```{r target, cache = TRUE}
 target <- rep(0.4, ncol(dataset))
 ```
 
-Get the row-level resampling weights. The weights are as close to uniform as possible while still making sure the bootstrap approximates the target column means.
+We now need to find the row-level resampling weights. The weights are as close to uniform as possible while still making sure the bootstrap approximates the target column means.
 
 ```{r weights, cache = TRUE}
 weights <- tweights(dataset = dataset, target = target)
 ```
 
-Bootstrap the rows of the dataset using the weights.
+Next, we bootstrap a very large sample using the weights.
 
 ```{r boot, cache = TRUE}
 boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
@@ -60,11 +72,27 @@ colMeans(boot)
 The weights for each sample will now differ:
 ```{r hist, cache = TRUE}
 hist(weights, breaks=25)
-abline(v=1/200,col="red")
+abline(v=1/300,col="red")
 ```
 
-The red line in the histogram above represents the probability for uniform resampling. We recomend against using the resampling methods implemented in this package when the weight of any one sample is too high. 
+The red line in the histogram above represents the probability for uniform resampling. We recomend against using the resampling methods implemented in this package when the weight of any one sample is too high. In some cases, this may be improved by transforming variables or removing/Winsorizing outlier samples. Also, using a different distance measure as described below in the section on Methodology may help. In general, if the target value is far from the observed mean of your data, it is likely that a handful of samples will be highly weighted.
 
+# Example 2: Constraining the mean for a subset of the variables
+
+Suppose we wish to constrain the mean for only as subset of the variables. For example, we may wish to constrain only the variables 'quant2' and 'bin1' to have a mean value of 0.4 and 0.5 respectively. We would determine the weights as follows:
+```{r targetweight, cache = TRUE}
+weights <- tweights(dataset = dataset[,c("quant2", "bin1")], 
+                    target = c(0.4, 0.5))
+```
+
+We can now bootstrap from the entire dataset as like this:
+```{r boot2, cache = TRUE}
+boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
+rbind("dataset mean"    = colMeans(dataset),
+      "tbootstrap mean" = colMeans(boot))
+```
+
+As may be seen, by changing the target mean of 'quant2' and 'bin1' we have also significantly changed the mean of other variables such as 'quant1' and 'bin2.' In many cases this is exactly what we would want to do, but it may occasionaly be problematic. For example, if the one of the variables is a baseline variable in a clinical trial. In this case, it is recomended that the user constrain the baseline covariate to be the same as in the observed data.
 
 # Methodology
 
@@ -78,23 +106,27 @@ The goal is to find a bootstrap resampling distribution that
 
 Let $q = (q_1, \ldots, q_n)$ be the resampling distribution. Here, $n$ is the number of rows in the original dataset, and $q_i$ is the probability that row $i$ will be chosen for a given row of the bootstrap dataset. Let $p = (p_1, \ldots, p_n)$ be uniform (i.e., $p_i = 1/n$, the resampling distribution of the ordinary bootstrap). 
 
-We want to find a $q$ that is as close to $p$ as possible. We consider two possible measures of distance. First, the Euclidian distance is defined as:
+We want to find a $q$ that is as close to $p$ as possible. We consider three possible measures of distance. First, the Euclidian distance is defined as:
 $$
 D_{Euclidian}= \sum_{i = 1}^n (p_i - q_i)^2
 $$
-Second, the Kullback-Leibler (KL) divergence (wich is technically not considered a distance metric) from $p$ to $q$ is defined as: 
-
+Second, the Backwards Kullback-Leibler (KL) divergence (wich is technically not considered a distance metric) from $p$ to $q$ is defined as:
 $$
 \begin{aligned}
-D_{KL}(p||q) 
-&= \sum_{i = 1}^n p_i \log \frac{p_i}{q_i} \\
-&=  \sum_{i = 1}^n \frac{1}{n} \log \frac{1}{n} - \frac{1}{n} \sum_{i = 1}^n \log q_i
+D_{KL}(q||p) 
+&= \sum_{i = 1}^n q_i \log \frac{q_i}{p_i} \\
+&= \sum_{i = 1}^n q_i \log nq_i 
 \end{aligned}
+$$
+
+Third, the Forwards Kullback-Leibler (KL) divergence  from $q$ to $p$ is defined as: 
+$$
+D_{KL}(p||q) = \sum_{i = 1}^n p_i \log \frac{p_i}{q_i} \\
 $$
 
 Note that minimizing $D_{KL}(p||q)$ is the same as minimizing $-\sum_{i = 1}^n \log q_i$.
 
-Thus the goal may be formulated as a constrained optimization proplem:
+The goal of determining the weigths for the 'Twisted Bootstrap' may be formulated as a constrained optimization proplem:
 $$
 q=\underset{q \in S}{\operatorname{argmin}} {D(p,q)}
 $$
@@ -108,12 +140,13 @@ Here $y$ is a vector of target means for the columns.
 ## Solving the optimization problem
 In the case of the Euclidian distance the problem is a standard "Quadratic Programing" problem which we solve using the 'solve.QP' function from the 'quadprog' package.
 
-To solve the problem for the KL distance, we use the lagrangian approach. Define $A=[X|1]$ (i.e. $A$ is the concatination of $X$ with a conformal column of all ones). Also, let $b=[y^T|1]^T$ (i.e $b$ is the $y$ vector with a one element concatinated to the end). The Lagrangian for this optimization problem is
+To solve the problem for the Backwords KL distance, we use the Lagrangian approach. Define $A=[X|1]$ (i.e. $A$ is the concatination of $X$ with a conformal column of all ones). Also, let $b=[y^T|1]^T$ (i.e $b$ is the $y$ vector with a one element concatinated to the end). The Lagrangian for this optimization problem is
+
 
 $$
 \begin{aligned}
-L(q, \lambda) &= -\sum_{i = 1}^n \log q_i + \lambda (A'q - b) \\
-&= \sum_{i = 1}^n \left [ -\log q_i +  \sum_{k = 1}^{K+1} \lambda_k (A_{ik} q_i - b_k) \right ]
+L(q, \lambda) &= \sum_{i = 1}^n q_i \log nq_i  + \lambda (A'q - b) \\
+&= \sum_{i = 1}^n \left [ q_i \log nq_i +  \sum_{k = 1}^{K+1} \lambda_k (A_{ik} q_i - b_k) \right ]
 \end{aligned}
 $$
 
@@ -125,32 +158,34 @@ where
 
 
 To optimize, we start by setting the gradient of $L$ equal to zero and solve for a locally optimal $q$ in terms of $\lambda$.
-
 $$
 \begin{aligned}
 0 &= \left . \frac{\partial L}{\partial q_i} \right |_{(q, \ \lambda)}  \\
-&= -\frac{1}{q_i} + A_i' \lambda \\
-\frac{1}{q_i} &=   A_i' \lambda \\
-q_i &= \frac{1}{  A_i' \lambda}
+&= \log nq_i + \frac{1}{n} + A_i' \lambda \\
+\log nq_i &=   -\frac{1}{n} - A_i' \lambda \\
+q_i &= e^{-A_i' \lambda^*}
 \end{aligned}
 $$
+Here, $\lambda^*$ is scaled and recenterd to absorbe the constants in the equation.
 
-Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector).  Hence, the locally optimal $q$ in terms of $\lambda$ is 
+Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector).  Hence, the locally optimal $q$ in terms of the vecotr $\lambda^*$ is 
+
+$$q^*(\lambda^*) = \left (e^{-A_1' \lambda^*}, \ldots, e^{-A_n' \lambda^*} \right ) $$
+To find $\lambda^*$, we slove the equation $A'q^*(\lambda^*) = b$ by using the Newton-Raphson algorythm.
+
+
+
+Similarly, it may be shown for the forward version of the KL, thatthe locally optimal $q$ in terms of $\lambda$ is 
 
 $$q^*(\lambda) = \left (\frac{1}{A_1^T \lambda}, \ldots, \frac{1}{  A_n^T \lambda} \right ) $$
 
-
-To get the best $q^*(\lambda)$, we choose the $\lambda^*$ sucth that $$F(\lambda):=A^Tq^*(\lambda) - b=0.$$
-
-We solve this problem by using a modification of Newton's method. Let $F'(\lambda)$ be the first derivative of $F(\lambda)$. We use the starting value of $\lambda^{(1)}=[0,..,0,1]$. At step $n+1$ the proposed value based on Newtons Method would be: $$\lambda^{(n+1)}_*=\lambda^{(n)}-[F'(\lambda^{(n)})]^{-1}F(\lambda^{(n)}).$$
-if $q^*(\lambda^{(n+1)}_*)$ is positive for all elements then we set $\lambda^{(n+1)}=\lambda^{(n+1)}_*$. Otherwise, we set  $\lambda^{(n+1)}=\alpha\lambda^{(n+1)}_*+ (1-\alpha)\lambda^{(n)}$ where alpha is set so that the step is half way to producing a negative probability.
-
+However, becuase the probabilities can become negative in this formula, the solution is often unstable and difficult to find. Thus, it is not recomended to us the forward KL distance. A warning will be issued if the user selects the forward KL distance in the tboot package.
 
 
 
 # Problems encountered for some data
 ## Not full rank
-If the data matrix is not full rank tweights will fail. Consider reducing the number of columns being constrained to deal with this issue.
+If the data matrix used to determine the weights is not full rank, tweights will likely fail. Consider reducing the number of columns being constrained to deal with this issue.
 
 ## Constraint not achievable
 Sometimes the desired constraint may not be achievable. If this is the case, tweights will give a warning, then it will find the "closest" achievable constraint. "Closest" is measured by a weighted euclidian distance. Thus the target ($y$) is replaced with:
@@ -164,5 +199,9 @@ $$
 and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal matrix with diagonal entries $W_{kk}=1/s^2_k$ where $s^2_k$ is the sample variance of column $k$ from the data matrix ($X$). We solve this problem using the 'ipop' function in the 'kernlap' package. Note that 'kernlab' is used instead of 'quadprog' becuase the problem is not easily formulated using a full rank matrix for the quadratic form in the problem.
 
 ## Unable to find an optimum
-For the KL dististance, the algorythm may fail to converge properly, and an error or warning will be issued. 
+The algorythm may fail to converge properly, and an error or warning will be issued. 
 
+## Some samples have a very high weight
+As previously mentioned if any sample is too highly weighted, the Twisted Bootstrap approach is not recomended. See Example 1 above for more discussion about this issue.
+
+# Bibliography

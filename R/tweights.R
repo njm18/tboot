@@ -33,7 +33,7 @@
 tweights <-function(
   dataset,
   target = apply(dataset, 2, mean),
-  distance="kl",
+  distance="klqp",
   maxit = 1000,
   tol=1e-8,
   silent=FALSE) {
@@ -88,21 +88,34 @@ tweights <-function(
     
     return(.print_ret(weights=opt$solution, dataset, target, oldTarget, silent))
     
-  } else if(distance=="kl") {
-    
-    opt=.newton(A,b,maxit,tol)
+  } else if(distance=="klpq") {
+    warning("The 'klpq' distance is difficult to optimize and may lead to unstable results.")
+    opt=.newtonKLpq(A,b,maxit,tol)
     if(opt$steps==maxit) {
       oldTarget=target
       target = .how_close(dataset, target)  #find a target that is achievable
       b <- c(1, target)
-      opt=.newton(A,b,maxit,tol)
+      opt=.newtonKLpq(A,b,maxit,tol)
       if(opt$steps==maxit)
         stop("Optimization failed. Maximum iterations reached.")
     }
-      
+    
+    return(.print_ret(weights=opt$weights, dataset, target,oldTarget, silent))
+  } else if(distance=="klqp") {
+    
+    opt=.newtonKLqp(A,b,maxit,tol)
+    if(opt$steps==maxit) {
+      oldTarget=target
+      target = .how_close(dataset, target)  #find a target that is achievable
+      b <- c(1, target)
+      opt=.newtonKLqp(A,b,maxit,tol)
+      if(opt$steps==maxit)
+        stop("Optimization failed. Maximum iterations reached.")
+    }
+    
     return(.print_ret(weights=opt$weights, dataset, target,oldTarget, silent))
   } else
-    stop("distance must be 'kl' or 'euchlidean.'")
+    stop("distance must be 'klqp', 'klpq' or 'euchlidean.'")
 }
 
 
@@ -124,8 +137,7 @@ tweights <-function(
   return(best)
 }
 
-.newton = function(A, b, maxit, tol) {
-  
+.newtonKLpq = function(A, b, maxit, tol) {
   #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
   s=svd(A)
   if( (s$d[length(s$d)]/s$d[1]) < 1e-6)
@@ -141,14 +153,10 @@ tweights <-function(
     pi_n=as.vector(1/xlambda_n)
     tmp=x_star * (pi_n)
     negF_deriv=  crossprod(tmp)
-   # if(steps==1)
-      
     dif=as.vector(pi_n %*% x_star -target_star)
-#    print(dif)
     if(any(pi_n<0))
       stop("Error in optimization step.")
-    # if(steps==546) #any(is.nan(dif)))
-    #   browser()
+
     if(max(abs(dif))<tol)
       break
     lambda_proposal= lambda_n + .solveTrap(negF_deriv, dif)
@@ -168,24 +176,48 @@ tweights <-function(
     if(alpha< 0 )
       browser()
     lambda_n=as.vector(alpha*lambda_proposal + (1-alpha)*lambda_n)
-    print(dif)
-    cat(max(pi_n), alpha, "\n")
   }
-  
   xlambda_n=x_star %*% lambda_n      
   pi_n=as.vector(1/xlambda_n)
-  
   return(list(steps=steps, weights=pi_n))
 } 
 
+
+
 .solveTrap=function(A,b) {
   tryCatch(solve(A,b), error = function(e) {
-    cat("hi")
+    warning("Matrix was not invertible. Adding a small constant to the diagonal.")
     e=eigen(A, symmetric=TRUE)
-    const = max(e$values)*.001-min(e$values)
+    const = max(e$values)*.001
     return(e$vectors %*% (diag(1/(e$values+const)) %*% (t(e$vector) %*% b)))
   })
 }
+
+
+.newtonKLqp = function(A, b, maxit, tol) {
+  
+  #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
+  s=svd(A)
+  if( (s$d[length(s$d)]/s$d[1]) < 1e-6)
+    warning("Matrix is ill conditioned (e.g. columns may be colinear). Please consider removing some columns.")
+  vdinv = s$v %*% diag(1/s$d)
+  x_star = (A %*% vdinv )
+  target_star =   as.vector(t(vdinv) %*% b)
+  lambda_n =as.vector( t(s$v %*% diag(s$d)) %*% c(-log(nrow(A)),rep(0, length(target_star)-1)) )
+  
+  for(steps in 1:maxit) {
+    xlambda_n=x_star %*% lambda_n      
+    pi_n=as.vector(exp(xlambda_n))
+    tmp=x_star * (pi_n)
+    F_deriv=  crossprod(tmp, x_star)
+    dif=as.vector(pi_n %*% x_star -target_star)
+    if(max(abs(dif))<tol)
+      break
+    lambda_n = lambda_n - .solveTrap(F_deriv, dif)
+  }
+  return(list(steps=steps, weights=pi_n))
+} 
+
 
 .print_ret = function(weights, dataset, target, oldTarget, silent) {
   weights=ifelse(weights>0,weights,0)
@@ -353,4 +385,3 @@ tweights <-function(
 # myf2=sapply(myx, myf2)
 # plot(na.omit(data.frame(myx,myf)))
 # plot(na.omit(data.frame(myf,myf2)))
-
