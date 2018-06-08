@@ -4,7 +4,7 @@
 \alias{tweights}
 \title{Function \code{tweights}}
 \usage{
-tweights(dataset, target = apply(dataset, 2, mean), distance = "kl",
+tweights(dataset, target = apply(dataset, 2, mean), distance = "klqp",
   maxit = 1000, tol = 1e-08, silent = FALSE)
 }
 \arguments{

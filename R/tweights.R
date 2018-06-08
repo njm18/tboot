@@ -89,7 +89,7 @@ tweights <-function(
     return(.print_ret(weights=opt$solution, dataset, target, oldTarget, silent))
     
   } else if(distance=="klpq") {
-    warning("The 'klpq' distance is difficult to optimize and may lead to unstable results.")
+    warning("The 'klpq' distance is difficult to optimize and may lead to unstable results. It has not been validated and is not recomended.")
     opt=.newtonKLpq(A,b,maxit,tol)
     if(opt$steps==maxit) {
       oldTarget=target
@@ -102,7 +102,6 @@ tweights <-function(
     
     return(.print_ret(weights=opt$weights, dataset, target,oldTarget, silent))
   } else if(distance=="klqp") {
-    
     opt=.newtonKLqp(A,b,maxit,tol)
     if(opt$steps==maxit) {
       oldTarget=target
@@ -112,7 +111,6 @@ tweights <-function(
       if(opt$steps==maxit)
         stop("Optimization failed. Maximum iterations reached.")
     }
-    
     return(.print_ret(weights=opt$weights, dataset, target,oldTarget, silent))
   } else
     stop("distance must be 'klqp', 'klpq' or 'euchlidean.'")
@@ -238,6 +236,8 @@ tweights <-function(
     print(toprint)
     cat("---------------------------------------------------------\n")
   }
+  if(any(weights>0.05))
+    warning("Some of the weights are larger than 0.05. Thus your bootstrap sample may be overly dependent on a few samples. See vignette.")
   return(weights)
 }
 
@@ -247,141 +247,3 @@ tweights <-function(
   return(lambda*const)
 }
 
-
-# Old version
-# tweights <-function(
-#   dataset,
-#   target = apply(dataset, 2, mean),
-#   distance="euchlidean",
-#   control = list(maxit=10000, reltol=1e-16),
-#   tol=1e-5,
-#   silent=FALSE) {
-#   oldTarget=NULL #will be replaced if we need to fix the target
-#   dataset=as.matrix(dataset)
-#   if(!is.numeric(dataset))
-#     stop("All columns of 'dataset' must be numeric.")
-#   #Check input
-#   if (length(target) != ncol(dataset)){
-#     stop("length of target must equal ncol(dataset).")
-#   }
-#   
-#   if(  sum(!is.finite(target))  > 0)
-#     stop("'target' is not valid. 'target' must be finite non missing.")
-#   
-#   if(  sum(!is.finite(dataset))  > 0)
-#     stop("'dataset' is not valid. 'dataset' must be finite non missing for all values.")
-#   
-#   if( any(apply(dataset, 2, var)==0) )
-#     stop("At least on column of 'dataset' has no variation (i.e. all subjects are the same for at least one column). Consider removing a column and its 'target'.")
-#   
-#   
-#   #Include probability constraint to sum to 1
-#   b <- c(1, target)
-#   A <- (as.matrix(
-#     cbind(
-#       int = 1,
-#       dataset
-#     )
-#   ))
-#   n=nrow(dataset)
-#   
-#   #Find best weights usingn euchlidian distance - if the target is infeasible try using ipop to get a closer.
-#   opt <- tryCatch(
-#     solve.QP(dvec =rep(1/n,n), Dmat =diag(n),
-#              Amat=cbind(A,diag(n)),
-#              bvec=c(b,rep(0,n)), meq =length(b), factorized = TRUE),
-#     error = function(e) NULL)
-#   
-#   if(is.null(opt)) {
-#     oldTarget=target
-#     target = .how_close(dataset, target)  #find a target that is achievable
-#     b <- c(1, target)
-#     opt=solve.QP(dvec =rep(1/n,n), Dmat =diag(n),
-#                  Amat=cbind(A,diag(n)),
-#                  bvec=c(b,rep(0,n)), meq =length(b), factorized = TRUE) #This time error out if you cant find it
-#   }
-#   
-#   
-#   # if(how(opt)!="converged")
-#   #   stop("'ipop' did not converge.")
-#   
-#   if(distance=="euchlidean") {
-#     return(.print_ret(weights=opt$solution, dataset, target, oldTarget, silent))
-#   } else if(distance=="kl") {
-#     
-#     for(i in 10:1) {
-#       pi=((i-1)*n*opt$solution+1)/(i*n) # slightly regularize to form a valid starting value
-#       lambdaStart= as.vector( solve(crossprod(A), crossprod(A , (1/pi ) ) ) )
-#       pi=as.vector(1/( A %*% lambdaStart))
-#       if(all(pi>=0))
-#         break
-#     }
-#     
-#     
-#     #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
-#     s=svd(A)
-#     if( (s$d[length(s$d)]/s$d[1]) < 1e-6)
-#       warning("Matrix is ill conditioned (e.g. columns may be colinear). Please consider removing some columns.")
-#     vdinv = s$v %*% diag(1/s$d)
-#     x_star = (A %*% vdinv )
-#     target_star =   as.vector(t(vdinv) %*% b)
-#     start_star =  as.vector(solve(vdinv, lambdaStart))
-#     
-#     #Optimize constraining to the feasible space where the probability is posative
-#     dist=function(lambda) {
-#       pi=as.vector(1/(x_star %*% lambda))
-#       return(sqrt( sum( ( pi %*% x_star -target_star)^2) ))
-#     }
-#     optConstr = constrOptim(start_star, dist, grad=NULL, ui=x_star, ci=rep(-1,n), control=control,  outer.eps = 1e-11)
-#     
-#     
-#     
-#     if(optConstr$convergence>0 || optConstr$value >tol) {
-#       grad=function(lambda) {
-#         pi=as.vector(1/(x_star %*% lambda))
-#         dif=pi %*% x_star -target_star
-#         d= t(x_star) %*% (x_star*pi^2) 
-#         return(-(dif) %*% d / sqrt(sum(dif^2)))
-#       }
-#       optConstr2 = constrOptim(optConstr$par, dist, grad=grad, ui=x_star, ci=rep(-1,n), control=control, method="BFGS")
-#       if(optConstr2$convergence>0 || optConstr2$value >tol) {
-#         optConstr3 = optim(optConstr2$par, dist, gr=grad, control=control, method="BFGS")
-#         
-#         if(optConstr3$convergence>0)
-#           stop("Convergence not reached using 'constrOptim' or 'optim' functions.")
-#         if( optConstr3$value >tol)
-#           stop(paste("Unable to find a close enough optima. Adjust tol to avoid this error. Best tol achieved is:",  optConstr3$value, ".\n"))
-#       }
-#     }
-#     ret=as.vector(1/(x_star %*% optConstr$par))
-#     if(any(ret<0))
-#       stop("Optimization failed.")
-#     return(.print_ret(weights=ret, dataset, target, silent))
-#   } else
-#     stop("distance must be 'kl' or 'euchlidean.'")
-#   
-# }
-
-
-# X=data.frame(x=rnorm(100000))
-# myf= function(lambda) {
-#   pi= 1/(1+ X$x * lambda)
-#   pi=pi/sum(pi)
-#   if(any(pi<0))
-#     return(NA)
-#   return(sum(pi*X$x))
-# }
-# 
-# myf2= function(lambda) {
-#   pi= 1/(1+ X$x * lambda)
-#   pi=pi/sum(pi)
-#   if(any(pi<0))
-#     return(NA)
-#   return(max(pi))
-# }
-# 
-# myx=seq(.22,.220345,.00001)
-# myf=sapply(myx, myf)
-# myf2=sapply(myx, myf2)
-# plot(na.omit(data.frame(myx,myf)))
-# plot(na.omit(data.frame(myf,myf2)))

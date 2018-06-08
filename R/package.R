@@ -7,7 +7,7 @@
 #' @author Nathan Morris \email{morris_nathan@lilly.com}
 #' @references \url{https://github.com/wlandau-lilly/tboot}
 #' @importFrom bindata rmvbin
-#' @importFrom stats optim rbinom
+#' @importFrom stats optim rbinom var
 #' @importFrom kernlab ipop primal how
 #' @importFrom quadprog solve.QP
 NULL

@@ -18,12 +18,15 @@ The twisted bootstrap is a weighted resampling technique. The goal is to take a 
 
 
 As and example, we simulate the following simple dataset with some categorical, quantitative and binary variables.
-```{r setup, cache = TRUE}
-library(tboot)
-set.seed(2017)
+```{r junk, cache = FALSE}
+cat("Asfdasdfasfdfds")
 ```
 
-```{r sim, cache = TRUE}
+
+
+```{r sim, cache = FALSE}
+library(tboot)
+set.seed(2018)
 color   <- sample(c("brown", "green", "blue"), 300, replace = TRUE)
 quant1  <- rnorm(300) + ifelse(color=="red", 1, 0)
 quant2  <- rnorm(300) + quant1*.5
@@ -35,7 +38,7 @@ head(simData)
 
 To use the 'tboot' package we must first code the variables as numeric matrix. To do this, we code the 'color' variable above with two dummy variables.
 
-```{r dataset, cache = TRUE}
+```{r dataset, cache = FALSE}
 dataset=as.matrix(cbind(
     colorBlue=ifelse(simData$color=="blue",1,0),
     colorBrown=ifelse(simData$color=="brown",1,0),
@@ -47,30 +50,30 @@ colMeans(dataset)
 
 Suppose that, in the bootstrapped dataset, we want all the column means to be around 0.4.
 
-```{r target, cache = TRUE}
+```{r target, cache = FALSE}
 target <- rep(0.4, ncol(dataset))
 ```
 
 We now need to find the row-level resampling weights. The weights are as close to uniform as possible while still making sure the bootstrap approximates the target column means.
 
-```{r weights, cache = TRUE}
+```{r weights, cache = FALSE}
 weights <- tweights(dataset = dataset, target = target)
 ```
 
 Next, we bootstrap a very large sample using the weights.
 
-```{r boot, cache = TRUE}
+```{r boot, cache = FALSE}
 boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
 ```
 
 The column means are close to the target even though all the rows came from the original data.
 
-```{r compare, cache = TRUE}
+```{r compare, cache = FALSE}
 colMeans(boot)
 ```
 
 The weights for each sample will now differ:
-```{r hist, cache = TRUE}
+```{r hist, cache = FALSE}
 hist(weights, breaks=25)
 abline(v=1/300,col="red")
 ```
@@ -80,19 +83,19 @@ The red line in the histogram above represents the probability for uniform resam
 # Example 2: Constraining the mean for a subset of the variables
 
 Suppose we wish to constrain the mean for only as subset of the variables. For example, we may wish to constrain only the variables 'quant2' and 'bin1' to have a mean value of 0.4 and 0.5 respectively. We would determine the weights as follows:
-```{r targetweight, cache = TRUE}
+```{r targetweight, cache = FALSE}
 weights <- tweights(dataset = dataset[,c("quant2", "bin1")], 
                     target = c(0.4, 0.5))
 ```
 
 We can now bootstrap from the entire dataset as like this:
-```{r boot2, cache = TRUE}
+```{r boot2, cache = FALSE}
 boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
 rbind("dataset mean"    = colMeans(dataset),
       "tbootstrap mean" = colMeans(boot))
 ```
 
-As may be seen, by changing the target mean of 'quant2' and 'bin1' we have also significantly changed the mean of other variables such as 'quant1' and 'bin2.' In many cases this is exactly what we would want to do, but it may occasionaly be problematic. For example, if the one of the variables is a baseline variable in a clinical trial. In this case, it is recomended that the user constrain the baseline covariate to be the same as in the observed data.
+As may be seen, by changing the target mean of 'quant2' and 'bin1' we have also significantly changed the mean of other variables such as 'quant1' and 'bin2.' In many cases this is exactly what we would want to do, but it may occasionaly be problematic. For example, if the one of the variables is a baseline variable in a clinical trial. In this case, it is recomended that the user constrain the mean of the baseline covariate to be the same as in the observed data.
 
 # Methodology
 
