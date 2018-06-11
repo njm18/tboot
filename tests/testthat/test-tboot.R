@@ -9,7 +9,7 @@ test_that("can bootstrap with correct weights", {
 
   target <- c(.5, .7, .3, .3, .4)
   weights_eu <- tweights(dataset = x, target = target, distance = "euchlidean")
-  weights_kl <- tweights(dataset = x, target = target, distance="kl")
+  weights_kl <- tweights(dataset = x, target = target, distance="klqp")
   
   boot_eu <- tboot(dataset = x, weights = weights_eu, nrow = 1e6)
   boot_kl <- tboot(dataset = x, weights = weights_kl, nrow = 1e6)
