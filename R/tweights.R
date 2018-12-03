@@ -238,7 +238,10 @@ tweights <-function(
   }
   if(any(weights>0.05))
     warning("Some of the weights are larger than 0.05. Thus your bootstrap sample may be overly dependent on a few samples. See vignette.")
-  return(weights)
+  weights_with_target = weights
+  attr(weights_with_target, "target") = target
+  attr(weights_with_target, "oldTarget") = oldTarget
+  return(weights_with_target)
 }
 
 .normalize=function(X,lambda) {
