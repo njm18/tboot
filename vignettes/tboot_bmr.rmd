@@ -1,0 +1,87 @@
+---
+title: "Bayesian Marginal Reconstruction"
+author: "Nathan Morris"
+date: "`r Sys.Date()`"
+bibliography: bibliography.bib
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tboot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Bayesian Marginal Reconstruction
+
+Suppose we are able summarize the current state of scientific knowledge for the mean/proportion of each of several encpoints for a particular treatment using a distribution. The distribution for each endpoint may come from the elicitation of prior information from experts, some initial dataset or some combination of different sources of information. In many cases it will be difficult to arive at a joint distribution. Only the marginal distribution of each endpoint will be calculated easily. This is particularly true when using external data where only marginal effects are shown, and no patient level data is available. In general assuming independence is not appropriate, as we would expect correlations in the distribution given that many endpoints are correlated. The method described here may be used to simulate from the aproximate joint distribution given the marginal distribution and an individual level data set. The correlation structure within the individual level data is used to impute the joint distribution. The method also provides a way to simulate virtual trial data based on the marginal.
+
+# A simulated example dataset
+
+As and example, we simulate the following simple dataset with some categorical, quantitative and binary variables.
+
+```{r sim, cache = FALSE}
+library(tboot)
+set.seed(2020)
+quant1  <- rnorm(200)
+bin1    <- ifelse( (.5*quant1 + .5*rnorm(200)) > 0, 1, 0)
+bin2    <- ifelse( (.5*quant1 + .5*rnorm(200)) > 0, 1, 0)
+simData <- data.frame(quant1, bin1, bin2)
+head(simData)
+```
+
+
+# Example 1: Specify the distribution for all variables
+
+First, we create a list with simulations from the marginal distribution of each variable for two different treatments.
+
+```{r target, cache = FALSE}
+marginal_active <-  list(quant1=rnorm(5000, mean=.3, sd=.3),
+                         bin1=rbeta(5000, shape1 = 40,shape2=40),
+                         bin2=rbeta(5000, shape1 = 30,shape2=10))
+marginal_pbo <-  list(quant1=rnorm(5000, mean=0, sd=.3),
+                      bin1=rbeta(5000, shape1 = 10,shape2=30),
+                      bin2=rbeta(5000, shape1 = 5,shape2=30))
+```
+
+We next need to use 'tweights_bmr' to calculate the correlation matrix from the data and get set for marginal reconstruction. The calculation uses a call to the 'tweights' function.
+
+```{r weights, cache = FALSE}
+bmr_active <- tweights_bmr(dataset = simData, marginal = marginal_active)
+bmr_pbo <- tweights_bmr(dataset = simData, marginal = marginal_pbo)
+```
+
+To simulate from the posterior we use 'post_bmr':
+
+```{r post_bmr, cache = FALSE}
+samples <- rbind(data.frame(trt="active", post_bmr(nsims=1e3, bmr_active)),
+                 data.frame(trt="pbo", post_bmr(nsims=1e3, bmr_pbo)))
+pairs(samples[,-1], col=ifelse(samples=="active","red","blue"))
+```
+
+To simulate a random trial dataset using the parameters from a single draw of 'post_bmr' we use the tboot_bmr function. For example to simulate 100 patients on active treatment:
+```{r tboot_bmr, cache = FALSE}
+active_sample=tboot_bmr(nrow=100, bmr=bmr_active)
+head(active_sample)
+                   
+```
+
+The underlying parameter mean for the simulation is an attribute:
+```{r attr, cache = FALSE}
+attr(active_sample, "post_bmr")
+                   
+```
+
+A more interesting example would be to simulate and analyze trial data. For example:
+```{r sim_trial, cache = FALSE}
+sim_and_analyze=function() {
+  active_sample=tboot_bmr(nrow=100, bmr=bmr_active)
+  pbo_sample=tboot_bmr(nrow=100, bmr=bmr_pbo)
+  data.frame(
+    p_quant1=t.test(active_sample$quant1,pbo_sample$quant1)$p.value,
+    p_bin1=fisher.test(active_sample$bin1,pbo_sample$bin1)$p.value,
+    p_bin2=fisher.test(active_sample$bin2,pbo_sample$bin2)$p.value
+  )
+}
+p_sim=do.call(rbind, replicate( 100,sim_and_analyze(), simplify = FALSE))
+head(p_sim)
+                   
+```
