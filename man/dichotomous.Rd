@@ -4,7 +4,8 @@
 \alias{dichotomous}
 \title{Function dichotomous}
 \usage{
-dichotomous(nrow = 1000, probs = c(0.5, 0.6, 0.2, 0.3, 0.4), prob12 = 0.4)
+dichotomous(nrow = 1000, probs = c(0.5, 0.6, 0.2, 0.3, 0.4),
+  prob12 = 0.4)
 }
 \arguments{
 \item{nrow}{number of rows in the output dataset}

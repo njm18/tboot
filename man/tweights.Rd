@@ -5,20 +5,27 @@
 \title{Function \code{tweights}}
 \usage{
 tweights(dataset, target = apply(dataset, 2, mean), distance = "klqp",
-  maxit = 1000, tol = 1e-08, silent = FALSE)
+  maxit = 1000, tol = 1e-08, warningcut = 0.05, silent = FALSE,
+  Nindependent = 0, augmentWeights = NULL)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
 
-\item{target}{Numeric vector of target column means.}
+\item{target}{Numeric vector of target column means. If the 'target' is named, then all elements of names(target) should be in the dataset.}
 
-\item{distance}{The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler).}
+\item{distance}{The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler). 'klqp' is recomneded.}
 
 \item{maxit}{Defines the maximum number of iterations for optimizing 'kl' distance.}
 
 \item{tol}{Tolerance. If the achieved mean is to far from the target (i.e. as defined by tol) an error will be thrown.}
 
+\item{warningcut}{Sets the cutoff for determining when a large weight will trigger a warnint.}
+
 \item{silent}{Allows silencing some messages.}
+
+\item{Nindependent}{Assumes the input also includes 'Nindependent'samples with independent columns. See details.}
+
+\item{augmentWeights}{List with weights for each variable marginal. Only has effect if Nindependent!=0.}
 }
 \description{
 Returns a vector \code{p} of resampling probabilities 
@@ -42,6 +49,15 @@ Optimization for euclidean distance is a quadratic program and utilizes the ipop
 The euclidean based solution helps form a starting value which is used along with the constOptim function 
 and lagrange multipliers to solve the Kullback-Leibler distance optimization.
   Output is the optimal porbability (p)
+
+The 'Nindependent' option augments the dataset by assuming some additional specified
+number of patients. These pateints are assumed to made up of a random bootstrapped sample
+from the dataset for each variable marginaly leading to indepenent variables. 
+The 'augmentWeights' are the weights of the assumed bootstrap weights for each independent
+variable. If augmentWeights is not specified, it will be set using tboot so each weight marginally
+leads to achieving the target. This augmentations is a bit like adding a small constant
+to the diagonal of the variation matrix. I has additional stability in convergence and will
+make it slightly easier to achieve the target mean with small sample sizes.
 }
 \seealso{
 \code{\link{tboot}}

@@ -4,16 +4,18 @@
 \alias{tboot}
 \title{Function tboot}
 \usage{
-tboot(dataset, weights = rep(1/nrow(dataset), nrow(dataset)),
-  nrow = base::nrow(dataset))
+tboot(nrow, weights, dataset = weights$dataset, fillMissingAug = TRUE)
 }
 \arguments{
-\item{dataset}{Data frame or matrix to bootstrap.}
-
-\item{weights}{numeric vector of row weights for resampling.
-Must have length \code{nrow(dataset)}}
-
 \item{nrow}{number of rows in the new bootstrapped dataset.}
+
+\item{weights}{an object of class 'tweights' output from the 'tweights' function.}
+
+\item{dataset}{Data frame or matrix to bootstrap. Rows of the dataset must be in the 
+same order as was used for the 'tweights' call. However the dataset may include
+additional columns not included in the 'tweights' calll.}
+
+\item{fillMissingAug}{fill in missing augmentation with primary weights resampling.}
 }
 \description{
 Bootstrap \code{nrow} rows of \code{dataset} using

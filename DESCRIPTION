@@ -1,5 +1,5 @@
 Package: tboot
-Title: Twisted Bootstrap
+Title: Tilted Bootstrap
 Version: 0.1.0
 Authors@R: c(
   person(
@@ -15,8 +15,9 @@ Authors@R: c(
   person(
     family = "Eli Lilly and Company",
     role = "cph"))
-Description: Weighted resampling of data rows
-  to achieve target column means.
+Description: Package supports weighted resampling of data rows
+  to achieve target column means. It also supports constructing 
+  a huristic appraoch to constructing a joint distribumtion from marginals.
 License: GPL-3
 Depends:
   R (>= 3.2.0)
@@ -32,4 +33,4 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://github.com/wlandau-lilly/tboot
 BugReports: https://github.com/wlandau-lilly/tboot/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

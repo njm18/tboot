@@ -5,11 +5,14 @@
 #' @seealso \code{\link{tboot}}
 #' @export
 #' @param dataset Data frame or matrix to use to find row weights.
-#' @param target Numeric vector of target column means.
-#' @param distance The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler).
+#' @param target Numeric vector of target column means. If the 'target' is named, then all elements of names(target) should be in the dataset.
+#' @param distance The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler). 'klqp' is recomneded.
 #' @param maxit Defines the maximum number of iterations for optimizing 'kl' distance.
 #' @param tol Tolerance. If the achieved mean is to far from the target (i.e. as defined by tol) an error will be thrown.
+#' @param warningcut Sets the cutoff for determining when a large weight will trigger a warnint.
 #' @param silent Allows silencing some messages.
+#' @param Nindependent Assumes the input also includes 'Nindependent'samples with independent columns. See details.
+#' @param augmentWeights List with weights for each variable marginal. Only has effect if Nindependent!=0.
 #' @details
 #' Let \eqn{p_i = 1/n} be  probability of sampling subject \eqn{i} from a dataset with \eqn{n} individuals (i.e. rows of the dataset) in the classic resampling with replacement scheme.
 #' Also, let \eqn{q_i} be the probability of sampling subject \eqn{i} from a dataset with \eqn{n} individuals in our new resampling scheme. Let \eqn{d(q,p)} represent a distance between the two resampling schemes.  The \code{tweights}
@@ -27,25 +30,47 @@
 #' The euclidean based solution helps form a starting value which is used along with the constOptim function 
 #' and lagrange multipliers to solve the Kullback-Leibler distance optimization.
 #'   Output is the optimal porbability (p)
-#'   
-
-
+#' 
+#' The 'Nindependent' option augments the dataset by assuming some additional specified
+#' number of patients. These pateints are assumed to made up of a random bootstrapped sample
+#' from the dataset for each variable marginaly leading to indepenent variables. 
+#' The 'augmentWeights' are the weights of the assumed bootstrap weights for each independent
+#' variable. If augmentWeights is not specified, it will be set using tboot so each weight marginally
+#' leads to achieving the target. This augmentations is a bit like adding a small constant
+#' to the diagonal of the variation matrix. I has additional stability in convergence and will
+#' make it slightly easier to achieve the target mean with small sample sizes.
 tweights <-function(
   dataset,
   target = apply(dataset, 2, mean),
   distance="klqp",
   maxit = 1000,
   tol=1e-8,
-  silent=FALSE) {
-  oldTarget=NULL #will be replaced if we need to fix the target
-  dataset=as.matrix(dataset)
-  if(!is.numeric(dataset))
-    stop("All columns of 'dataset' must be numeric.")
+  warningcut=0.05,
+  silent=FALSE,
+  Nindependent=0,
+  augmentWeights=NULL) {
+  
+  originalTarget=NULL #will be replaced if we need to fix the target
+  originalDataset=dataset
+  
+  if(is.null(colnames(dataset)))
+    stop("'dataset' must have named columns starting with version 1.1.")
+
+
+  
   #Check input
-  if (length(target) != ncol(dataset)){
-    stop("length of target must equal ncol(dataset).")
+  if(is.null(names(target))) {
+      stop("'target' must be a named vector starting with version 1.1.")
+  } else {
+    if(!all(names(target) %in% colnames(dataset)))
+      stop("Some names of 'target' have no match in colnames  'dataset.'")
+    dataset=dataset[,names(target)]
   }
   
+  dataset=as.matrix(dataset)
+  if(!is.numeric(dataset))
+    stop("All targeted columns of 'dataset' must be numeric.")
+
   if(  sum(!is.finite(target))  > 0)
     stop("'target' is not valid. 'target' must be finite non missing.")
   
@@ -55,7 +80,44 @@ tweights <-function(
   if( any(apply(dataset, 2, var)==0) )
     stop("At least on column of 'dataset' has no variation (i.e. all subjects are the same for at least one column). Consider removing a column and its 'target'.")
   
-  
+  if(Nindependent!=0) {
+    if(floor(Nindependent)!=Nindependent)
+      stop("'Nindependent' must be an integer.")
+    if(is.null(augmentWeights)) {
+      augmentWeights=lapply(names(target), function(nm){
+        ret=tweights(
+          dataset[,nm, drop=FALSE],
+          target = target[nm],
+          distance=distance,
+          maxit = maxit,
+          tol=tol,
+          warningcut=1,#dont warn
+          silent=TRUE)#dont talk - remember it is the final check that matters
+        return(ret$weights)
+      })
+      names(augmentWeights)=colnames(dataset)
+    } else{
+      #augment weights was sent in so check its validity
+      if( !any(class(augmentWeights) =="list") )
+        stop("'augmentWeights' must be a 'list.'")
+      if(is.null(names(target)))
+        stop("'augmentWeights' must be a named list.")
+      if(!all(names(target) %in% names(augmentWeights)))
+        stop("Some names of 'target' have no match to a name in 'augmentWeights.'")
+      augmentWeights=augmentWeights[names(target)]
+    }
+    
+    augmentMeans=sapply(names(target), function(nm) 
+      return(crossprod( dataset[,nm], augmentWeights[[nm]])))
+
+
+    
+    augmentMeansrep=do.call(rbind, 
+                         replicate(Nindependent, augmentMeans,
+                                   simplify = FALSE))
+    dataset=rbind(dataset,augmentMeansrep) 
+  }
+     
   #Include probability constraint to sum to 1
   b <- c(1, target)
   A <- (as.matrix(
@@ -66,10 +128,7 @@ tweights <-function(
   ))
   n=nrow(dataset)
   
-  
-  
   if(distance=="euchlidean") {
-    
     #Find best weights using euchlidian distance - if the target is infeasible try using ipop to get a closer.
     opt <- tryCatch(
       solve.QP(dvec =rep(1/n,n), Dmat =diag(n),
@@ -78,7 +137,7 @@ tweights <-function(
       error = function(e) NULL)
     
     if(is.null(opt)) {
-      oldTarget=target
+      originalTarget=target
       target = .how_close(dataset, target)  #find a target that is achievable
       b <- c(1, target)
       opt=solve.QP(dvec =rep(1/n,n), Dmat =diag(n),
@@ -86,13 +145,14 @@ tweights <-function(
                    bvec=c(b,rep(0,n)), meq =length(b), factorized = TRUE) #This time error out if you cant find it
     }
     
-    return(.print_ret(weights=opt$solution, dataset, target, oldTarget, silent))
+    return(.print_ret(originalDataset,weights=opt$solution, dataset, target, originalTarget,
+                      warningcut, silent, Nindependent, augmentWeights))
     
   } else if(distance=="klpq") {
     warning("The 'klpq' distance is difficult to optimize and may lead to unstable results. It has not been validated and is not recomended.")
     opt=.newtonKLpq(A,b,maxit,tol)
     if(opt$steps==maxit) {
-      oldTarget=target
+      originalTarget=target
       target = .how_close(dataset, target)  #find a target that is achievable
       b <- c(1, target)
       opt=.newtonKLpq(A,b,maxit,tol)
@@ -100,18 +160,20 @@ tweights <-function(
         stop("Optimization failed. Maximum iterations reached.")
     }
     
-    return(.print_ret(weights=opt$weights, dataset, target,oldTarget, silent))
+    return(.print_ret(originalDataset,weights=opt$weights, dataset, target,originalTarget,
+                      warningcut,silent, Nindependent, augmentWeights))
   } else if(distance=="klqp") {
     opt=.newtonKLqp(A,b,maxit,tol)
     if(opt$steps==maxit) {
-      oldTarget=target
+      originalTarget=target
       target = .how_close(dataset, target)  #find a target that is achievable
       b <- c(1, target)
       opt=.newtonKLqp(A,b,maxit,tol)
       if(opt$steps==maxit)
         stop("Optimization failed. Maximum iterations reached.")
     }
-    return(.print_ret(weights=opt$weights, dataset, target,oldTarget, silent))
+    return(.print_ret(originalDataset,weights=opt$weights, dataset, target,originalTarget, 
+                      warningcut,silent, Nindependent, augmentWeights))
   } else
     stop("distance must be 'klqp', 'klpq' or 'euchlidean.'")
 }
@@ -171,8 +233,8 @@ tweights <-function(
     }
     else
       alpha=1
-    if(alpha< 0 )
-      browser()
+    # if(alpha< 0 )
+    #   browser()
     lambda_n=as.vector(alpha*lambda_proposal + (1-alpha)*lambda_n)
   }
   xlambda_n=x_star %*% lambda_n      
@@ -217,31 +279,50 @@ tweights <-function(
 } 
 
 
-.print_ret = function(weights, dataset, target, oldTarget, silent) {
-  weights=ifelse(weights>0,weights,0)
+.print_ret = function(originalDataset,weights, dataset, target, originalTarget, 
+                      warningcut, silent,
+                      Nindependent, augmentWeights) {
+  weights=ifelse(weights>0,weights,0) #Just in case of numeric issues
   weights=weights/sum(weights)
-  if(is.null(oldTarget)) {
-    toprint= t(cbind(t(dataset) %*% weights, target))
+  achievedMean=as.vector(t(dataset) %*% weights)
+  names(achievedMean)=colnames(dataset)
+  if(is.null(originalTarget)) {
+    toprint= t(cbind(achievedMean, target))
     rownames(toprint) =c("Achieved Mean", "Target Mean")
     colnames(toprint)=colnames(dataset)
   } else {
-    toprint= t(cbind(t(dataset) %*% weights, target, oldTarget))
+    toprint= t(cbind(achievedMean, target, originalTarget))
     rownames(toprint) =c("Achieved Mean", "Adjusted Target Mean", "Original Target Mean")
     colnames(toprint)=colnames(dataset)
   }
 
   if(!silent){
-    cat("---------------------------------------------------------\n")
+    cat("----------------------------------------------------------------\n")
     cat("Optimization was successful. The weights have a sampleing\ndistribution with means close to the attemted target:\n")
     print(toprint)
-    cat("---------------------------------------------------------\n")
+    cat("Maximum weight was: ", max(weights),"\n")
+    if( Nindependent >0 )
+      cat("Data augmented with", Nindependent, "sample(s) with independent variables.",
+          "\nThe final weight of the indpendent sample(s) was: ", 
+          sum(weights[(length(weights)-Nindependent+1):length(weights)]), "\n")
+    
+    cat("----------------------------------------------------------------\n")
   }
-  if(any(weights>0.05))
-    warning("Some of the weights are larger than 0.05. Thus your bootstrap sample may be overly dependent on a few samples. See vignette.")
-  weights_with_target = weights
-  attr(weights_with_target, "target") = target
-  attr(weights_with_target, "oldTarget") = oldTarget
-  return(weights_with_target)
+  if(any(weights>warningcut))
+    warning(paste0("Some of the weights are larger than ", warningcut, 
+                   ". Thus your bootstrap sample may be overly dependent on a few samples. See vignette."))
+
+  
+  ret = list(weights=weights,
+             target=target,
+             dataset=originalDataset,
+             X=dataset[1:nrow(originalDataset),],
+             originalTarget=originalTarget,
+             achievedMean=achievedMean,
+             Nindependent = Nindependent,
+             augmentWeights = augmentWeights) 
+  class(ret)="tweights"
+  return(ret)
 }
 
 .normalize=function(X,lambda) {

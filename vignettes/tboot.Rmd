@@ -1,5 +1,5 @@
 ---
-title: "Twisted Bootstrap"
+title: "Tilted Bootstrap"
 author: "Nathan Morris, Will Landau"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
@@ -10,19 +10,14 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Twisted Bootstrap
+# Tilted Bootstrap
 
-The twisted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows in such a way that the column means approximate a user-defined target. In other words, you can control the marginal means while still preserving intricate relationships among the variables. The "Twisted Bootstrap" is related to the "Tilted Bootstrap" proposed by Efron and others [@efron1981nonparametric]. However, the "Twisted Bootstrap" is used in a multivariate situation and is intended for simulating future outcomes instead of making inference.
+The tilted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows of dataset in such a way that the column means approximate a user-defined target. In other words, you can control the marginal means while still preserving intricate relationships among the variables. The "Tilted Bootstrap" is related to the inferential methods proposed by Efron and others [@efron1981nonparametric]. However, the methods implementd in the 'tboot' package are used in a multivariate situation and intended for simulating future outcomes instead of making inference.
 
 # A simulated example dataset
 
 
 As and example, we simulate the following simple dataset with some categorical, quantitative and binary variables.
-```{r junk, cache = FALSE}
-cat("Asfdasdfasfdfds")
-```
-
-
 
 ```{r sim, cache = FALSE}
 library(tboot)
@@ -51,7 +46,12 @@ colMeans(dataset)
 Suppose that, in the bootstrapped dataset, we want all the column means to be around 0.4.
 
 ```{r target, cache = FALSE}
-target <- rep(0.4, ncol(dataset))
+target <-  c(colorBlue=0.4,
+             colorBrown=0.4,
+             quant1=0.4,
+             quant2=0.4,
+             bin1=0.4,
+             bin2=0.4) 
 ```
 
 We now need to find the row-level resampling weights. The weights are as close to uniform as possible while still making sure the bootstrap approximates the target column means.
@@ -63,7 +63,7 @@ weights <- tweights(dataset = dataset, target = target)
 Next, we bootstrap a very large sample using the weights.
 
 ```{r boot, cache = FALSE}
-boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
+boot <- tboot(weights = weights, nrow = 1e5)
 ```
 
 The column means are close to the target even though all the rows came from the original data.
@@ -74,7 +74,7 @@ colMeans(boot)
 
 The weights for each sample will now differ:
 ```{r hist, cache = FALSE}
-hist(weights, breaks=25)
+hist(weights$weights, breaks=25)
 abline(v=1/300,col="red")
 ```
 
@@ -84,13 +84,13 @@ The red line in the histogram above represents the probability for uniform resam
 
 Suppose we wish to constrain the mean for only as subset of the variables. For example, we may wish to constrain only the variables 'quant2' and 'bin1' to have a mean value of 0.4 and 0.5 respectively. We would determine the weights as follows:
 ```{r targetweight, cache = FALSE}
-weights <- tweights(dataset = dataset[,c("quant2", "bin1")], 
-                    target = c(0.4, 0.5))
+weights <- tweights(dataset = dataset, 
+                    target = c(quant2=0.4, bin1=0.5))
 ```
 
 We can now bootstrap from the entire dataset as like this:
 ```{r boot2, cache = FALSE}
-boot <- tboot(dataset = dataset, weights = weights, nrow = 1e5)
+boot <- tboot(weights, nrow = 1e5)
 rbind("dataset mean"    = colMeans(dataset),
       "tbootstrap mean" = colMeans(boot))
 ```
@@ -101,7 +101,7 @@ As may be seen, by changing the target mean of 'quant2' and 'bin1' we have also 
 
 The goal is to find a bootstrap resampling distribution that
 
-1. is close to uniform. That way, the twisted bootstrap is as close to an ordinary bootstrap as possible.
+1. is close to uniform. That way, the tilted bootstrap is as close to an ordinary bootstrap as possible.
 2. generates bootstrap datasets with the desired column means.
 
 
@@ -129,7 +129,7 @@ $$
 
 Note that minimizing $D_{KL}(p||q)$ is the same as minimizing $-\sum_{i = 1}^n \log q_i$.
 
-The goal of determining the weigths for the 'Twisted Bootstrap' may be formulated as a constrained optimization proplem:
+The goal of determining the weigths for the 'tilted bootstrap' may be formulated as a constrained optimization proplem:
 $$
 q=\underset{q \in S}{\operatorname{argmin}} {D(p,q)}
 $$
@@ -174,15 +174,15 @@ Here, $\lambda^*$ is scaled and recenterd to absorbe the constants in the equati
 Here, $X_i$ is the $i$'th row of $X$ (expressed as a column vector).  Hence, the locally optimal $q$ in terms of the vecotr $\lambda^*$ is 
 
 $$q^*(\lambda^*) = \left (e^{-A_1' \lambda^*}, \ldots, e^{-A_n' \lambda^*} \right ) $$
-To find $\lambda^*$, we slove the equation $A'q^*(\lambda^*) = b$ by using the Newton-Raphson algorythm.
+To find $\lambda^*$, we slove the equation $A'q^*(\lambda^*) = b$ by using the Newton-Raphson algorythm. Thus, it turns out that backwards version of the KL distance results in what is called "exponential tilting." Some of the elegent properties of exponential tilting are described in a different vignette.
 
 
 
-Similarly, it may be shown for the forward version of the KL, thatthe locally optimal $q$ in terms of $\lambda$ is 
+Similarly, it may be shown for the forward version of the KL, that the locally optimal $q$ in terms of $\lambda$ is 
 
 $$q^*(\lambda) = \left (\frac{1}{A_1^T \lambda}, \ldots, \frac{1}{  A_n^T \lambda} \right ) $$
 
-However, becuase the probabilities can become negative in this formula, the solution is often unstable and difficult to find. Thus, it is not recomended to us the forward KL distance. A warning will be issued if the user selects the forward KL distance in the tboot package.
+However, tboot's current implementation of forward KL distance is not very stable. A warning will be issued if the user selects the forward KL distance in the tboot package.
 
 
 
@@ -191,7 +191,7 @@ However, becuase the probabilities can become negative in this formula, the solu
 If the data matrix used to determine the weights is not full rank, tweights will likely fail. Consider reducing the number of columns being constrained to deal with this issue.
 
 ## Constraint not achievable
-Sometimes the desired constraint may not be achievable. If this is the case, tweights will give a warning, then it will find the "closest" achievable constraint. "Closest" is measured by a weighted euclidian distance. Thus the target ($y$) is replaced with:
+Sometimes the desired constraint may not be achievable. This ofent occures when the disired target differs from the data by a large amount. If the target is not achievable, tweights will give a warning, then it will find the "closest" achievable constraint. "Closest" is measured by a weighted euclidian distance. Thus the target ($y$) is replaced with:
 $$
 y_{new}=X'q^*
 $$
@@ -205,6 +205,27 @@ and $S^*={q^*|\space \sum_{i = 1}^n q_i^* = 1}$. The weights ($W$) is a diagonal
 The algorythm may fail to converge properly, and an error or warning will be issued. 
 
 ## Some samples have a very high weight
-As previously mentioned if any sample is too highly weighted, the Twisted Bootstrap approach is not recomended. See Example 1 above for more discussion about this issue.
+As previously mentioned if any sample is too highly weighted, the tilted bootstrap approach is not recomended. See Example 1 above for more discussion about this issue.
+
+## Augmented Sampling to Improved Stability
+In many cases, the problems described above can be avoided by the use of the 'Nindependent' option in the 'tweights' function. We suggest that typically if this option is used the usere set Nindependent=1. This will set it up so that one one additional "special" sample is assumed to exist in the original data. If 'tboot' draws this special sample, it will proceed to bootstrap each variable independently so that the variables are indpendent for that patient. The weights for each independent variable bootstrap are set so that (if possible) the "special" sample would  average to the target. In effect, the Nindependent option adds a small amount to each diagonal element of the covariance matrix of the simulated data. In exchange for the small bias created, the user will be able to better achieve a target even when the dataset available is small or ill-conditioned. This method is used for the Bayesian marginal reconstruction method.
+As an example of using this option consider
+```{r boot2, cache = FALSE}
+x1=rnorm(75)
+x2=rnorm(75)*sqrt(.1) + x1*sqrt(.9)
+dataset2=data.frame(x1=x1, x2=x2)
+
+weights_no_augmentation <- tweights(dataset = dataset2, 
+                    target = c(x1=0.1, x2=-0.1))
+weights_augmentation <- tweights(dataset = dataset2, 
+                    target = c(x1=0.1, x2=-0.1), Nindependent=1)
+boot_no_augmentation <- tboot(weights_no_augmentation, nrow = 1e3)
+boot_augmentation <- tboot(weights_no_augmentation, nrow = 1e3)
+cor(boot_no_augmentation)
+cor(boot_augmentation)
+
+```
+
+                    
 
 # Bibliography
