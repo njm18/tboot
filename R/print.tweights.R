@@ -24,7 +24,7 @@ print.tweights <- function(obj) {
   if( Nindependent >0 )
     cat("Data augmented with", Nindependent, "samples with independent variables.",
         "\nThe final weight of these samples was: ", 
-        sum(weigths[(length(weights)-Nindependent+1):length(weights)]))
+        sum(weigths[(length(weights)-Nindependent+1):length(weights)]), "\n")
   
   cat("----------------------------------------------------------------\n")
   

@@ -12,7 +12,6 @@
 #' @param warningcut Sets the cutoff for determining when a large weight will trigger a warnint.
 #' @param silent Allows silencing some messages.
 #' @param Nindependent Assumes the input also includes 'Nindependent'samples with independent columns. See details.
-#' @param augmentWeights List with weights for each variable marginal. Only has effect if Nindependent!=0.
 #' @details
 #' Let \eqn{p_i = 1/n} be  probability of sampling subject \eqn{i} from a dataset with \eqn{n} individuals (i.e. rows of the dataset) in the classic resampling with replacement scheme.
 #' Also, let \eqn{q_i} be the probability of sampling subject \eqn{i} from a dataset with \eqn{n} individuals in our new resampling scheme. Let \eqn{d(q,p)} represent a distance between the two resampling schemes.  The \code{tweights}
@@ -34,11 +33,22 @@
 #' The 'Nindependent' option augments the dataset by assuming some additional specified
 #' number of patients. These pateints are assumed to made up of a random bootstrapped sample
 #' from the dataset for each variable marginaly leading to indepenent variables. 
-#' The 'augmentWeights' are the weights of the assumed bootstrap weights for each independent
-#' variable. If augmentWeights is not specified, it will be set using tboot so each weight marginally
-#' leads to achieving the target. This augmentations is a bit like adding a small constant
-#' to the diagonal of the variation matrix. I has additional stability in convergence and will
-#' make it slightly easier to achieve the target mean with small sample sizes.
+#' @return 
+#' An object of type \code{tweights}. This object conains the following components:
+#' \describe{
+#'   \item{weights}{tilted weights for resampling}
+#'   \item{originalTarget}{Will be null if target was not changed.}
+#'   \item{target}{Actual target that was attempted.}
+#'   \item{achievedMean}{Achieved mean from tilting.}
+#'   \item{dataset}{Inputed dataset.}
+#'   \item{X}{Reformated dataset.}
+#'   \item{Nindependent}{Inputed 'Nindependent' option.}
+#'   \item{augmentWeights}{Used for 'Nindependent' option weights for each variable.}
+#' }
+#' 
+#' 
+#' 
+#' 
 tweights <-function(
   dataset,
   target = apply(dataset, 2, mean),
@@ -47,20 +57,20 @@ tweights <-function(
   tol=1e-8,
   warningcut=0.05,
   silent=FALSE,
-  Nindependent=0,
-  augmentWeights=NULL) {
+  Nindependent=0
+  ) {
   
   originalTarget=NULL #will be replaced if we need to fix the target
   originalDataset=dataset
   
-  if(is.null(colnames(dataset)))
-    stop("'dataset' must have named columns starting with version 1.1.")
-
-
   
+  if(is.null(colnames(dataset)))
+    stop("'dataset' must have named columns starting with version 1.")
+
+
   #Check input
   if(is.null(names(target))) {
-      stop("'target' must be a named vector starting with version 1.1.")
+      stop("'target' must be a named vector starting with version 1.")
   } else {
     if(!all(names(target) %in% colnames(dataset)))
       stop("Some names of 'target' have no match in colnames  'dataset.'")
@@ -83,7 +93,7 @@ tweights <-function(
   if(Nindependent!=0) {
     if(floor(Nindependent)!=Nindependent)
       stop("'Nindependent' must be an integer.")
-    if(is.null(augmentWeights)) {
+    # if(is.null(augmentWeights)) {
       augmentWeights=lapply(names(target), function(nm){
         ret=tweights(
           dataset[,nm, drop=FALSE],
@@ -96,16 +106,16 @@ tweights <-function(
         return(ret$weights)
       })
       names(augmentWeights)=colnames(dataset)
-    } else{
-      #augment weights was sent in so check its validity
-      if( !any(class(augmentWeights) =="list") )
-        stop("'augmentWeights' must be a 'list.'")
-      if(is.null(names(target)))
-        stop("'augmentWeights' must be a named list.")
-      if(!all(names(target) %in% names(augmentWeights)))
-        stop("Some names of 'target' have no match to a name in 'augmentWeights.'")
-      augmentWeights=augmentWeights[names(target)]
-    }
+    # } else{
+    #   #augment weights was sent in so check its validity
+    #   if( !any(class(augmentWeights) =="list") )
+    #     stop("'augmentWeights' must be a 'list.'")
+    #   if(is.null(names(target)))
+    #     stop("'augmentWeights' must be a named list.")
+    #   if(!all(names(target) %in% names(augmentWeights)))
+    #     stop("Some names of 'target' have no match to a name in 'augmentWeights.'")
+    #   augmentWeights=augmentWeights[names(target)]
+    # }
     
     augmentMeans=sapply(names(target), function(nm) 
       return(crossprod( dataset[,nm], augmentWeights[[nm]])))
@@ -116,7 +126,8 @@ tweights <-function(
                          replicate(Nindependent, augmentMeans,
                                    simplify = FALSE))
     dataset=rbind(dataset,augmentMeansrep) 
-  }
+  } else
+    augmentWeights=NULL
      
   #Include probability constraint to sum to 1
   b <- c(1, target)

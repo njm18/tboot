@@ -8,17 +8,27 @@
 #' @param dataset Data frame or matrix to bootstrap. Rows of the dataset must be in the 
 #' same order as was used for the 'tweights' call. However the dataset may include
 #' additional columns not included in the 'tweights' calll.
-
-
 #' @param fillMissingAug fill in missing augmentation with primary weights resampling.
+#' @details
+#' Bootstrap simulates a dataset using the tilted weights. Details a further documented in the vignette.
+#' @return 
+#' A simulated dataset with 'nrow' rows.
+
 tboot <- function(nrow,
                   weights,
                   dataset=weights$dataset,
                   fillMissingAug=TRUE) {
+
   if(missing(nrow))
     stop("'nrow' is missing")
   if(missing(weights))
     stop("'weights' is missing")
+  if(!("tweights" %in% class(weights)))
+    stop("'weights' must be an object of class 'tweights' from the 'tweights' function.")
+  if(!is.numeric(nrow))
+    stop("'nrow' must be numeric.")
+  if(length(nrow)!=1)
+    stop("'nrow' must be length 1.")
   
   nweights <- length(weights$weights)
   index <- sample.int(
@@ -28,8 +38,7 @@ tboot <- function(nrow,
     replace = TRUE
   )
   
-  if(!("tweights" %in% class(weights)))
-    stop("'weights' must be an object of class 'tweights' from the 'tweights' function.")
+
   
   Nindependent=weights$Nindependent
   if(is.null(weights$Nindependent))
@@ -76,20 +85,21 @@ tboot <- function(nrow,
     #get augmented
     augIndex=which(is.na(index))
     naug=length(augIndex)
-    aug=do.call(data.frame, lapply(colnames(dataset), 
+    aug=lapply(colnames(dataset), 
                function(nm) {
                  w=weights$augmentWeights[[nm]]
-                 cat(nm,"\n")
-                 cat(length(w),"\n")
-                 cat(nrow(dataset),"\n")                 
                  if(length(w)!=nrow(dataset))
                    stop("'augmentWeights' weights not set to correct length.")
                  augindex=sample.int(n = length(w),
                                      size = naug, prob = w, 
                                      replace = TRUE)
                  dataset[augindex,nm]
-               }))
+               })
+    names(aug)=colnames(dataset)
+    aug=do.call(data.frame, aug)
     
+    if(is.matrix(ret))
+      ret=data.frame(ret)
     ret[augIndex,]=aug
                           
     return(ret)

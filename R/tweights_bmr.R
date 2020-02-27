@@ -1,5 +1,5 @@
 #' @title Function tweights_bmr
-#' @description Setup the needed prequisitesin order to prepare for bayesian marginal reconstruction (including a call to tweights). Takes as input simulations from the posterior marginal distribution of variables in a dataset.
+#' @description Setup the needed pre-requisites in order to prepare for bayesian marginal reconstruction (including a call to tweights). Takes as input simulations from the posterior marginal distribution of variables in a dataset.
 #' @seealso \code{\link{tweights}}
 #' @export
 #' @param dataset Data frame or matrix to use to find row weights.
@@ -11,6 +11,28 @@
 #' @param silent Allows silencing some messages.
 #' @param Nindependent Assumes the input also includes 'Nindependent'samples with independent columns. See details.
 #' @param augmentWeights List with weights for each variable marginal. Only has effect if Nindependent!=0. Generally this should be left as NULL. 'tweights' will fill in automatically.
+#' @details
+#' Reconstructs a correlated joint posterior from simulations from a marginal posterior.
+#' Algorythm is summarized more fully in the vignettes.
+#' The 'Nindependent' option augments the dataset by assuming some additional specified
+#' number of patients. These pateints are assumed to made up of a random bootstrapped sample
+#' from the dataset for each variable marginaly leading to indepenent variables.
+#' @return 
+#' An object of type \code{tweights}. This object conains the following components:
+#' \describe{
+#'   \item{Csqrt}{Matrix square root of the covariance.}
+#'   \item{tweights}{Result from the call to tweigths.}
+#'   \item{marginal}{Input marginal simulations.}
+#'   \item{dataset}{Formatted dataset.}
+#'   \item{target}{Attempted target.}
+#'   \item{distance,maxit,tol, Nindependent, warningcut}{Inputed values to 'tweights_bmr'.}
+#'   \item{Nindependent}{Inputed 'Nindependent' option.}
+#'   \item{augmentWeights}{Used for 'Nindependent' option weights for each variable.}
+#'   \item{weights}{tilted weights for resampling}
+#'   \item{originalTarget}{Will be null if target was not changed.}
+#'   \item{marginal_sd}{Standard deviation of the marginals.}
+#' }
+#' 
 
 tweights_bmr=function(dataset, 
                       marginal, 
@@ -24,7 +46,15 @@ tweights_bmr=function(dataset,
   
   if(Nindependent<1)
     stop("'tweights_bmr' requires Nindependent>0 in order to keep simulation stable.")
+  if(!is.list(marginal))
+    stop("'marginal' must be a list.")
+  if(is.null(names(marginal)))
+    stop("'marginal' must be a named list.")
   
+  if(is.null(colnames(dataset)))
+    stop("'dataset' must have named columns starting with version 1.")
+  if(any( !(names(marginal) %in% colnames(dataset))))
+    stop("names of elements of 'marginal' must exist in dataset.")
   
   marginal=lapply(marginal, sort)
   target=sapply(marginal, mean)
