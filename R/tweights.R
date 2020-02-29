@@ -6,7 +6,7 @@
 #' @export
 #' @param dataset Data frame or matrix to use to find row weights.
 #' @param target Numeric vector of target column means. If the 'target' is named, then all elements of names(target) should be in the dataset.
-#' @param distance The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler). 'klqp' is recomneded.
+#' @param distance The distance to minimize. Must be either 'euchlidean,' 'klqp' or 'klpq' (i.e. Kullback-Leibler). 'klqp' which is expontential tilting is recomneded.
 #' @param maxit Defines the maximum number of iterations for optimizing 'kl' distance.
 #' @param tol Tolerance. If the achieved mean is to far from the target (i.e. as defined by tol) an error will be thrown.
 #' @param warningcut Sets the cutoff for determining when a large weight will trigger a warnint.
@@ -63,21 +63,24 @@ tweights <-function(
   originalTarget=NULL #will be replaced if we need to fix the target
   originalDataset=dataset
   
+
   
   if(is.null(colnames(dataset)))
     stop("'dataset' must have named columns starting with version 1.")
 
 
   #Check input
-  if(is.null(names(target))) {
+  if(!is.numeric(target)) {
+    stop("'target' must be a named numeric vector.")
+  } else if(is.null(names(target))) {
       stop("'target' must be a named vector starting with version 1.")
-  } else {
-    if(!all(names(target) %in% colnames(dataset)))
+  } else if(!all(names(target) %in% colnames(dataset))) {
       stop("Some names of 'target' have no match in colnames  'dataset.'")
-    dataset=dataset[,names(target)]
   }
   
+  dataset=dataset[,names(target)]
   dataset=as.matrix(dataset)
+  
   if(!is.numeric(dataset))
     stop("All targeted columns of 'dataset' must be numeric.")
 
@@ -226,7 +229,10 @@ tweights <-function(
     negF_deriv=  crossprod(tmp)
     dif=as.vector(pi_n %*% x_star -target_star)
     if(any(pi_n<0))
-      stop("Error in optimization step.")
+      stop("Error in optimization step. Target may be to far from data.")
+    
+    if(any(is.na(dif)))
+      stop("Error in optimization step. Target may be to far from data.")
 
     if(max(abs(dif))<tol)
       break
@@ -282,6 +288,8 @@ tweights <-function(
     tmp=x_star * (pi_n)
     F_deriv=  crossprod(tmp, x_star)
     dif=as.vector(pi_n %*% x_star -target_star)
+    if(any(is.na(dif)))
+      stop("Error in optimization step. Target may be to far from data.")
     if(max(abs(dif))<tol)
       break
     lambda_n = lambda_n - .solveTrap(F_deriv, dif)

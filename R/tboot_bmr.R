@@ -38,8 +38,7 @@ tboot_bmr=function(nrow, weights_bmr, tol_rel_sd=.05) {
                                     tol=weights_bmr$tol,
                                     warningcut=weights_bmr$warningcut,
                                     silent=TRUE,
-                                    Nindependent=weights_bmr$Nindependent,
-                                    augmentWeights=NULL))#weights_bmr$tweights$augmentWeights))
+                                    Nindependent=weights_bmr$Nindependent))#weights_bmr$tweights$augmentWeights))
   
   if(max(abs(weights$achievedMean - mu)/weights_bmr$marginal_sd) > tol_rel_sd){
   #  browser()
