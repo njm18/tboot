@@ -68,7 +68,7 @@ tboot <- function(nrow,
       if(!fillMissingAug) {
         stop("Missing 'augmentWeights.' Consider setting fillMissingAug=TRUE.")
       } 
-      wtmp=weights[1:(length(weights)-Nindependent)]
+      wtmp=weights$weights[1:(length(weights$weights)-Nindependent)]
       wtmp=wtmp/sum(wtmp)
       for(nm in missingAug) {
         weights$augmentWeights[[nm]]=wtmp
@@ -101,7 +101,7 @@ tboot <- function(nrow,
     if(is.matrix(ret))
       ret=data.frame(ret)
     ret[augIndex,]=aug
-                          
+    rownames(ret)=NULL                 
     return(ret)
   }
 } 
