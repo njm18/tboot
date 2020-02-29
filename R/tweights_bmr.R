@@ -41,8 +41,7 @@ tweights_bmr=function(dataset,
                       tol=1e-8,
                       warningcut=0.05,
                       silent=FALSE,
-                      Nindependent=1,
-                      augmentWeights=NULL) {
+                      Nindependent=1) {
   
   if(Nindependent<1)
     stop("'tweights_bmr' requires Nindependent>0 in order to keep simulation stable.")
@@ -61,7 +60,7 @@ tweights_bmr=function(dataset,
   marginal_sd=sapply(marginal, sd)
   w=tweights(dataset, target, distance = distance, 
              maxit = maxit, tol = tol, warningcut=0.05, silent = silent,
-             Nindependent=Nindependent, augmentWeights=augmentWeights)
+             Nindependent=Nindependent)
   X=w$X
   
   #double check w
@@ -74,15 +73,22 @@ tweights_bmr=function(dataset,
   if( is.null(names(w$augmentWeights)) )
     stop("'augmentWeights' must be a named 'list.'")
   
-  augmentMeans2=sapply(names(marginal), function(nm) 
-    return(crossprod( X[,nm]^2, w$augmentWeights[[nm]])))
   
-  m1=w$achievedMean
+  p_independent=sum(w$weights[(nrow(X)+1):length(w$weights)])
+  normalized_notindependent_weights=w$weights[1:nrow(dataset)]/(1-p_independent)
   
-  m2=crossprod(X[1:nrow(dataset),]*w$weights[1:nrow(dataset)],X) + 
-    diag(augmentMeans2)*sum(w$weights[(nrow(X)+1):length(w$weights)])
+  #first moment
+  m1_all=w$achievedMean
+  m1_independent=sapply(colnames(X), function(nm) mean(X[,nm] %*%w$augmentWeights[[nm]] ))
   
-  V= m2 - tcrossprod(m1)
+  #second moment
+  m2_notindependent=crossprod(X[1:nrow(dataset),]*normalized_notindependent_weights,X)
+  m2_indepentdent= tcrossprod(m1_independent)
+  diag(m2_indepentdent)=sapply(colnames(X), function(nm) mean( (X[,nm]^2) %*%w$augmentWeights[[nm]] ))
+  m2_all=m2_notindependent*(1-p_independent) + m2_indepentdent*p_independent
+  
+  #variance and correlation
+  V= m2_all - tcrossprod(m1_all)
   D=diag(1/sqrt(diag(V)))
   C=D %*% V %*% D
   
