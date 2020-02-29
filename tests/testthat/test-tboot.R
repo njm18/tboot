@@ -2,21 +2,42 @@ context("tboot")
 
 test_that("bootstrap weights yield correct mean", {
   set.seed(2017)
-  probs <- c(.55, .65, .25, .37, .48)
-  names(probs) <- paste0("x", seq_along(probs))
-  prob12 <- 0.42
-  x <- dichotomous(nrow = 1e3, probs = probs, prob12 = prob12)
+  
+  #Use Iris data as example
+  target=c(Sepal.Length=5.5, Sepal.Width=2.9, Petal.Length=3.4)
+  
+  w1=tweights(dataset = iris, target = target, distance = "klqp")
+  w2=tweights(dataset = iris, target = target, distance = "euchlidean")
+  w3=suppressWarnings(tweights(dataset = iris, target = target, distance = "klpq")) #calls warning with this distance
+  
+  boot1 <- tboot(nrow = 1e6, weights = w1)
+  boot2 <- tboot(nrow = 1e6, weights = w2)
+  boot3 <- tboot(nrow = 1e6, weights = w3)  
+  
+  expect_equal(colMeans(boot1[, names(target)]), target, tol = 1e-2)
+  expect_equal(colMeans(boot2[, names(target)]), target, tol = 1e-2)
+  expect_equal(colMeans(boot3[, names(target)]), target, tol = 1e-2)
+  
+  #Try with Nindependent
+  wiris1=tweights(dataset = iris, target = target, distance = "klqp", Nindependent = 10)
+  wiris2=tweights(dataset = iris, target = target, distance = "euchlidean", Nindependent = 10)
+  
+  boot1 <- tboot(nrow = 1e6, weights = wiris1)
+  boot2 <- tboot(nrow = 1e6, weights = wiris2)
+  
+  expect_equal(colMeans(boot1[, names(target)]), target, tol = 1e-2)
+  expect_equal(colMeans(boot2[, names(target)]), target, tol = 1e-2)
+  
+  
+  #Use new simulated data
+  dataset <- data.frame(x = rnorm(100), y = rnorm(100), z=rnorm(100))
+  target=c(x=0, y=0, z=0)
+  w1=tweights(dataset = dataset, target = target, distance = "klqp")
+  w2=tweights(dataset = dataset, target = target, distance = "euchlidean")
 
-  target <- c(.53, .7, .3, .33, .5)
-  weights_eu <- tweights(dataset = x, target = target, distance = "euchlidean")
-  weights_kl <- tweights(dataset = x, target = target, distance="klqp")
-  
-  boot_eu <- tboot(dataset = x, weights = weights_eu, nrow = 1e6)
-  boot_kl <- tboot(dataset = x, weights = weights_kl, nrow = 1e6)
-  
-  rates_eu <- colMeans(boot_eu)
-  rates_kl <- colMeans(boot_eu)
-  
-  expect_equal(unname(rates_eu), target, tol = 1e-2)
-  expect_equal(unname(rates_kl), target, tol = 1e-2)
+  boot1 <- tboot(nrow = 1e6, weights = w1)
+  boot2 <- tboot(nrow = 1e6, weights = w2)
+
+  expect_equal(colMeans(boot1), target, tol = 1e-2)
+  expect_equal(colMeans(boot2), target, tol = 1e-2)
 })
