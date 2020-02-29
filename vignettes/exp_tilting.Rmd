@@ -1,0 +1,177 @@
+---
+title: "Some test cases of the `tboot` package for exponential tilting"
+author: "Nathan Morris, Lanfeng Pan"
+date: "`r Sys.Date()`"
+bibliography: bibliography.bib
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exponential Tilting Examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE
+)
+```
+
+# Introduction
+The most common type of bootstrap [@efron1981nonparametric] is to sample from the empirical distribution derived from observed data. Such samples will be distributed withe the same mean as the observed data. But if the goal is to obtain samples that satisfying certain conditions on the mean while still being otherwise similar to the observed data, this approach will not be helpful. The exponentially tilted bootstrap, or bootstrap with tilting [@johns1988], aims to  obtain such samples. In this document we use simulation to describe some of the properties of the exponentially tilted bootstrap.
+
+
+
+# Model
+Denote the observed data as $\{X_1, \ldots, X_n\}$ and assume it comes from a certain distribution family with parameter $\theta=(\theta_1^T, \theta_2^T)^T$. Assume the maximal likelihood estimate of $\hat{\theta}_1$ can be expressed as linear combination of $X_i$ for $i=1,\ldots,n$. This includes many parameters such as mean and variance. 
+ 
+The goal is to obtain samples such that $\hat{\theta}_1 = \theta_{0;1}$.
+
+Assume there is an inclusion probability 
+$\boldsymbol{q}=(q_1,\ldots,q_n)^T$ affiliated to the observed data, such that any samples drawn from the observed data with inclusion probability $\boldsymbol{q}$ satisfies 
+$$
+\hat{\theta}_1^{(b)} = \theta_{0;1}.
+$$
+
+There may be multiple $\boldsymbol{q}$ meeting this requirement and different $\boldsymbol{q}$ results into different distribution.
+One intuitive way is minimizing the KL distance between tilted data and the observed data
+$$
+\sum_i q_i log\{q_i/(1/n)\}.
+$$
+The resulted $q_i$ will be proportional to $\exp\{\boldsymbol{X}_i \boldsymbol{\lambda}\}$, which is equivalent to exponential tilting.
+
+
+# Simulations
+
+## Simulation 1: exponential family density
+We simulate 1000 data points from Gaussian distribution $N(\mu, 1)$ for $\mu$ equals 0.25,0.5,0.75 and 1.5 respectively. We then use tboot to exponentially tilt the simulated data such that the means mean is at 0. To see the resulted distribution after tilting, we draw 1e4 bootstrap samples from the generated data points with probability equal to the tilted weight and then run kernel density estimation on each of the bootstrap samples.
+The nonparametric kernel density of the tilted distribution is given in parallel with the true density in the plot below. As may be see the tilted samples maintain the same variance (i.e., variance is 1) while shifting the expected mean to 0. This is expected based on theoretical considerations as exponentially tilting a normal distributions leads to changing the mean but not the variance.
+
+```{r}
+library(tboot)
+
+library(bindata)
+```
+
+```{r, fig.cap="The blue dashed line is the density generating the original data.  The black dashed line is the kernel density on the tilted bootstrap samples. The yellow line is the standard normal density. The mean of the true density are 0.25, 0.5, 0.75, 1.5 respectively. This figure shows the tilted bootstrap samples match the target distribution very closely.", fig.align="center", fig.width=6, warning=FALSE, echo=TRUE}
+
+set.seed(2018)
+def.par <- par(no.readonly = TRUE) # save default, for resetting...
+layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE))
+par(mai = c(.45,.45,.25,.25))
+for(bias in c(0.25, .5, 0.75, 1.5)){
+  X = data.frame(X=rnorm(1e5, bias))
+  w = tweights(X, target = c(X=0), silent=T)
+  Xb = tboot(1e5, weights = w)
+  den = density(Xb$X, bw=.2)
+  curve(dnorm(x), from = -4, to = 4, col="red", lwd=3, ylim=c(0,0.48), ylab="density")
+  lines(den,lwd=3, col="black", lty=2)
+  curve(dnorm(x,mean = bias), add=T, col = "blue", lty=2)
+
+}
+
+par(def.par)
+
+```
+
+
+
+
+## Simulation 2: Gaussian Mixture
+
+The tilted Gaussian mixture is still a Gaussian mixture with new means and new priors.
+
+
+```{r fig.align="center", fig.cap="The generating density is Gaussian mixture 0.4N(mu-2, 1)+0.6N(mu+2,1), marked as blue dashed lines. The kernel density of the  bootstrap samples are marked as dached black lines. The four figures correspond to using exponential tilting to fix mu=0.25, 0.5, 0.75 and 1.5 respectively.", fig.width=6, warning=FALSE, echo=TRUE}
+set.seed(2018)
+def.par <- par(no.readonly = TRUE) # save default, for resetting...
+layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE))
+par(mai = c(.45,.45,.25,.25))
+for(bias in c(0.25, .5, 0.75, 2.2)){
+  cand1 = rnorm(1e5, bias-2)
+  cand2 = rnorm(1e5, bias+2)
+  X = data.frame( X=ifelse(runif(1e5)< 0.4, cand1, cand2) )
+  colnames(X) = "X"
+  w = tweights(X, target = c(X=0), silent=T)
+  
+  curve(0.4 * dnorm(x, mean=bias-2)+ 0.6*dnorm(x, mean=bias+2),
+        from = -5, to = 6, col="blue", lty=2, ylim=c(0,0.32), ylab="density")
+  Xb = tboot(1e5, weights = w)
+  den = density(Xb$X, bw=.2)
+  lines(den, lwd=3, col="black", lty=2)
+}
+
+par(def.par)
+```
+
+To demonstrate this, we generate data points from $0.4N(\mu-2, 1)+0.6N(\mu+2,1)$ and align the mean to be 0 using exponential tilting. The above plots shows the kernel density plot of the tilted distribution.
+
+
+
+## Simulation 3: Multivariate Gaussian with some of the means being fixed
+
+Consider that $\boldsymbol{X}=(\boldsymbol{X}_1,\boldsymbol{X}_2)$multivariate Gaussian distribution with mean $\boldsymbol{\mu}=(\boldsymbol{\mu}_1,\boldsymbol{\mu}_2)$ and variance $$\boldsymbol{\Sigma}=\left[ {\begin{array}{cc}
+   \boldsymbol{\Sigma}_{11} & \boldsymbol{\Sigma}_{12} \\
+   \boldsymbol{\Sigma}_{21} & \boldsymbol{\Sigma}_{22} \\
+  \end{array} } \right].
+  $$ 
+
+If aligning the means of $\boldsymbol{X}_1$ at certain values (say $x_1$) using exponential tilting, the expectation of means of $\boldsymbol{X}_2$ are equal to the conditional mean: 
+$$
+E\{\boldsymbol{X}_2 \mid \boldsymbol{X}_1=\boldsymbol{x}_1\}=\boldsymbol{\mu}_2 +\Sigma_{21}\Sigma_{11}^{-1}(x_1-\boldsymbol{\mu}_1)
+$$
+while the covariance remains unchanged (i.e. the covariance is 
+$\boldsymbol{\Sigma}_{22}$ and not the conditional covariance). This theoretical result is demonstrated empirically using the simulation below.
+
+
+
+
+```{r echo=TRUE}
+set.seed(2018)
+mu = rep(0,6)
+Sig = diag(6)
+rho = 0.8
+for(i in 1:6){
+  for(j in 1:6){
+    Sig[i, j ] = rho^(abs(i-j) )
+  }
+}
+names(mu)=colnames(Sig)=rownames(Sig)= paste0("X",1:6)
+
+
+mu2_cond = (mu[5:6] + Sig[5:6,1:4] %*% solve(Sig[1:4,1:4]) %*% (0.5-mu[1:4]))
+S22_cond = Sig[5:6, 5:6] - Sig[5:6,1:4] %*% solve(Sig[1:4,1:4]) %*% Sig[1:4, 5:6]
+S22=Sig[4:6, 4:6] 
+
+
+X = MASS::mvrnorm(n = 1e6, mu = mu, Sigma = Sig)
+colnames(X) = paste0("X",1:ncol(X))
+w = tweights(X, target = c(X1=.5, X2=.5, X3=.5, X4=.5), silent=T)
+boots = tboot(1e6, w)
+myMeans=rbind( mu[5:6],
+               t(mu2_cond),
+              colMeans(boots[,c("X5","X6")]))
+rownames(myMeans)=c("Theoretical Data Mean",
+                    "Theoretical Data Conditional Mean", 
+                    "Simulated Exponentially Tilted Mean")
+myMeltVar=function(V) 
+  c("Var(X5)"=V[1,1], "Cov(X5,X6)"=V[1,2], "Var(X6)"=V[2,2])
+
+myVar=rbind(myMeltVar(S22),
+            myMeltVar(S22_cond),
+            myMeltVar(cov(boots[,c("X5","X6")])))
+
+rownames(myVar)=c("Theoretical Data Var/Cov",
+                  "Theoretical Data Conditional Var/Cov", 
+                  "Simulated Exponentially Tilted Var/Cov")
+myMeans
+
+myVar
+
+```
+
+
+# References
+
+
