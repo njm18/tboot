@@ -50,7 +50,7 @@ tweights_bmr=function(dataset,
     stop("'marginal' must be a named list.")
   
   if(is.null(colnames(dataset)))
-    stop("'dataset' must have named columns starting with version 1.")
+    stop("'dataset' must have named columns starting with version 0.2.0.")
   if(any( !(names(marginal) %in% colnames(dataset))))
     stop("names of elements of 'marginal' must exist in dataset.")
   

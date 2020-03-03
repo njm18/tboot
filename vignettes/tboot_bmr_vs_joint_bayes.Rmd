@@ -310,6 +310,7 @@ joint_probS=sapply(sim_data_1_50, get_trial_probS_joint)
 ```
 
 As may be seen below, the 3 methods yield very similar results.
+
 ```{r cache = FALSE}
 print(data.frame(bmr_probS_1,bmr_probS_2,joint_probS))
 

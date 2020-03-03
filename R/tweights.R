@@ -66,14 +66,14 @@ tweights <-function(
 
   
   if(is.null(colnames(dataset)))
-    stop("'dataset' must have named columns starting with version 1.")
+    stop("'dataset' must have named columns starting with version 0.2.0.")
 
 
   #Check input
   if(!is.numeric(target)) {
     stop("'target' must be a named numeric vector.")
   } else if(is.null(names(target))) {
-      stop("'target' must be a named vector starting with version 1.")
+      stop("'target' must be a named vector starting with version 0.2.0.")
   } else if(!all(names(target) %in% colnames(dataset))) {
       stop("Some names of 'target' have no match in colnames  'dataset.'")
   } else {
