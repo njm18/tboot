@@ -11,24 +11,40 @@ The function documentation and vignettes serve as the specifications for this R 
 # Validation
 
 ## Edge Cases
-Many cases of clearly incorrect inputs are automatically tested in this package to ensure the package correctly throws errors and warnings. The code for these edge cases can be found in th file "/tboot/tests/testthat/test-edge-cases.R". These include edge cases for the following 5 functions:
+Many cases of clearly incorrect inputs are automatically tested in this package to ensure the package correctly throws errors and warnings. The code for these edge cases can be found in the file "/tboot/tests/testthat/test-edge-cases.R". These include edge cases for the following 5 functions:
 
  + tweigths()
  + tboot()
  + tweights_bmr()
  + post_bmr()
  + tboot_bmr()
-
+ 
 ## Validation of 'tweights' and 'tboot'
 
-We have the following validation approaches:
+The following steps were taken to ensure the 'tweights' and 'tboot' functions work as expected:
 
-1. We require that the  weighted mean from the data using the weights from tweights should lead to the specified 'target' specified mean. This is check by tweights itself and the results are automatically printed to the screen every time the function is run unless suppressed.
+1. We require that the  weighted mean from the data using the weights from tweights should lead to the specified 'target' specified mean. This is checked by the 'tweights' function itself every time it is run and the results are automatically printed to the screen every time the function is run unless suppressed.
 
-2. We require that the results of tboot for large samples should be the expected target for several different scenarios. One such such scenario is found in the 'tboot' vignette. Additional scenarios are automatically checked int ....
+2. We require that the results of tboot for large samples should be the expected target for several different scenarios. One such such scenario is found in the 'tboot' vignette. Additional scenarios are automatically checked in "/tboot/tests/testthat/test-tboot.R".
 
 3. We require the the the results from tboot be consistent with several theoretical expectations. This is checked in the 'exp_tilting' vignette.
 
 
 ## Validation of 'tweights_bmr,' 'post_bmr' and 'tboot_bmr'
+
+The following steps were taken to ensure the 'tweights_bmr,' 'post_bmr' and 'tboot_bmr' functions work as expected:
+
+1. Calls to 'tweights_bmr' are depenendent on 'tweights' and calls to 'tboot_bmr' are dependent on 'tboot.' Validation of these functions is described above.
+
+2. We require that the marginal distribution of the output from 'post_bmr' should be similar to the marginal distribution inputed into 'tweights_bmr.' This is shown in the vignette graphically. It is also checked in the "/tboot/tests/testthat/test-tboot_bmr.R" file by looking at moments up to the fourth moment. This same requirement for the marginal should be true of the post_bmr attribute from the 'tboot_bmr' function. We check the attribute in "/tboot/tests/testthat/test-tboot_bmr.R".
+
+3. We require that the square of the square root matrix from tweights_bmr should match with the correlation from a large sample from tboot. This is checked in "/tboot/tests/testthat/test-tboot_bmr.R" along with several other expectations on correlation in a specific scenario.
+
+4. We require the the large sample results from 'post_bmr' be consistent with theoretical expectations as described and demonstrated in the vignette.
+
+
+## Code Review
+Code was also peer reviewed.
+
+
 
