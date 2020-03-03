@@ -1,4 +1,4 @@
-context("tboot")
+context("tboot_bmr")
 
 test_that("bmr bootstrap weights yield correct distribution", {
   set.seed(2020)
@@ -14,7 +14,7 @@ test_that("bmr bootstrap weights yield correct distribution", {
   #thus the correlations from data and from tweights should be close but not the same due to Nindependent
   #option
   w1=tweights_bmr(dataset = iris, marginal = marginal,
-                  distance = "klqp",Nindependent = 10)
+                  distance = "klqp",Nindependent = 10, silent = TRUE)
   calculateCorrTweights = as.vector(tcrossprod(w1$Csqrt))
   corrData=as.vector(cor(iris[,names(marginal)]))
   corrBoot=as.vector(cor(tboot(1e6,w1$tweights)[,names(marginal)]))
@@ -23,7 +23,7 @@ test_that("bmr bootstrap weights yield correct distribution", {
   
   #Check thaat Csqrt again with different Nindependent option
   w1=tweights_bmr(dataset = iris, marginal = marginal,
-                  distance = "klqp",Nindependent = 1)
+                  distance = "klqp",Nindependent = 1, silent = TRUE)
   calculateCorrTweights = as.vector(tcrossprod(w1$Csqrt))
   corrData=as.vector(cor(iris[,names(marginal)]))
   corrBoot=as.vector(cor(tboot(1e6,w1$tweights)[,names(marginal)]))
@@ -42,11 +42,11 @@ test_that("bmr bootstrap weights yield correct distribution", {
                  Sepal.Width=winsor(rnorm(10000,mean=3,sd=.2), iris$Sepal.Width),
                  Petal.Length=winsor(rnorm(10000,mean=3.7,sd=.2), iris$Petal.Length)
   )
-  w1=tweights_bmr(dataset = iris, marginal = marginal, distance = "klqp")
-  w2=tweights_bmr(dataset = iris, marginal = marginal, distance = "euchlidean")
+  w1=tweights_bmr(dataset = iris, marginal = marginal, distance = "klqp", silent = TRUE)
+  w2=tweights_bmr(dataset = iris, marginal = marginal, distance = "euchlidean", silent = TRUE)
 
-  post1 <- post_bmr(1e6, weights = w1)
-  post2 <- post_bmr(1e6, weights = w2)
+  post1 <- post_bmr(1.5e6, weights = w1)
+  post2 <- post_bmr(1.5e6, weights = w2)
   
   #check first moment
   margin_mean=sapply(marginal, function(x) mean(x))
@@ -82,9 +82,10 @@ test_that("bmr bootstrap weights yield correct distribution", {
   expect_equal(momentroot(t(myattr),m), margin_rootmoment, tol = 5e-3) #didn't sim enought to get high tol on higer moments
   
   #Check that the the bootstrap goes to attribute
-  boot1=tboot_bmr(1e6,w1)
-  boot2=tboot_bmr(1e6,w2)
+  boot1=tboot_bmr(2e6,w1)
+  boot2=tboot_bmr(2e6,w2)
   expect_equal(attr(boot1, "post_bmr"), colMeans(boot1), tol = 5e-3)
   expect_equal(attr(boot2, "post_bmr"), colMeans(boot2), tol = 5e-3)
 
 })
+
