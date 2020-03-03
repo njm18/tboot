@@ -27,3 +27,4 @@ post_bmr=function(nsims, weights_bmr) {
   colnames(sims)=names(weights_bmr$marginal)
   return(sims)
 }
+

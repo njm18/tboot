@@ -6,8 +6,8 @@
 #' @author William Michael Landau \email{will.landau@@lilly.com}
 #' @author Nathan Morris \email{morris_nathan@lilly.com}
 #' @references \url{https://github.com/wlandau-lilly/tboot}
-#' @importFrom bindata rmvbin
-#' @importFrom stats optim rbinom var
+#' @importFrom stats optim rbinom var pnorm quantile rnorm sd
 #' @importFrom kernlab ipop primal how
 #' @importFrom quadprog solve.QP
+#' @suggests quadprog solve.QP
 NULL

@@ -1,11 +1,11 @@
+#' @method print tweights_bmr   
 #' @export
-print.tweights_bmr <- function(obj) {
-#browser()
-  weights=obj$tweights$weights
-  target=obj$tweights$target
-  originalTarget=obj$tweights$originalTarget
-  achievedMean=obj$tweights$achievedMean
-  Nindependent=obj$Nindependent
+print.tweights_bmr <- function(x, ...) {
+  weights=x$tweights$weights
+  target=x$tweights$target
+  originalTarget=x$tweights$originalTarget
+  achievedMean=x$tweights$achievedMean
+  Nindependent=x$Nindependent
   if(is.null(originalTarget)) {
     toprint= t(cbind(achievedMean, target))
     rownames(toprint) =c("Achieved Mean", "Target Mean Posterior")

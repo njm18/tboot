@@ -2,7 +2,7 @@
 #' @description Returns a vector \code{p} of resampling probabilities 
 #' such that the column means of \code{tboot(dataset = dataset, p = p)}
 #' equals \code{target} on average.
-#' @seealso \code{\link{tboot}}
+#' @seealso \code{\link{tboot}} 
 #' @export
 #' @param dataset Data frame or matrix to use to find row weights.
 #' @param target Numeric vector of target column means. If the 'target' is named, then all elements of names(target) should be in the dataset.
@@ -76,6 +76,10 @@ tweights <-function(
       stop("'target' must be a named vector starting with version 1.")
   } else if(!all(names(target) %in% colnames(dataset))) {
       stop("Some names of 'target' have no match in colnames  'dataset.'")
+  } else {
+    bounds=apply(dataset[,names(target), drop=FALSE], 2, function(x) return(c(min(x), max(x))))
+    if(any(target<bounds[1,]) || any(target>bounds[2,]))
+      stop("Target for each variable must be between maximum and minimum of the values in the dataset.")
   }
   
   dataset=dataset[,names(target)]
@@ -96,42 +100,36 @@ tweights <-function(
   if(Nindependent!=0) {
     if(floor(Nindependent)!=Nindependent)
       stop("'Nindependent' must be an integer.")
-    # if(is.null(augmentWeights)) {
-      augmentWeights=lapply(names(target), function(nm){
-        ret=tweights(
-          dataset[,nm, drop=FALSE],
-          target = target[nm],
-          distance=distance,
-          maxit = maxit,
-          tol=tol,
-          warningcut=1,#dont warn
-          silent=TRUE)#dont talk - remember it is the final check that matters
-        return(ret$weights)
-      })
-      names(augmentWeights)=colnames(dataset)
-    # } else{
-    #   #augment weights was sent in so check its validity
-    #   if( !any(class(augmentWeights) =="list") )
-    #     stop("'augmentWeights' must be a 'list.'")
-    #   if(is.null(names(target)))
-    #     stop("'augmentWeights' must be a named list.")
-    #   if(!all(names(target) %in% names(augmentWeights)))
-    #     stop("Some names of 'target' have no match to a name in 'augmentWeights.'")
-    #   augmentWeights=augmentWeights[names(target)]
-    # }
+   # browser()
+    #find a target that is achievable set the independent weights
+    # to offset the so that we can achieve the bound.
+    possible_target = .how_close(dataset, target, supress_warnings=TRUE)  
+    independent_target = target - (possible_target-target)
+    independent_target = ifelse(independent_target<bounds[1,],bounds[1,],independent_target)
+    independent_target = ifelse(independent_target>bounds[2,],bounds[2,],independent_target)
+    
+    augmentWeights=lapply(names(target), function(nm){
+      ret=tweights(
+        dataset[,nm, drop=FALSE],
+        target = independent_target[nm],
+        distance=distance,
+        maxit = maxit,
+        tol=tol,
+        warningcut=1,#dont warn
+        silent=TRUE)#dont talk - remember it is the final check that matters
+      return(ret$weights)
+    })
+    names(augmentWeights)=colnames(dataset)
     
     augmentMeans=sapply(names(target), function(nm) 
       return(crossprod( dataset[,nm], augmentWeights[[nm]])))
-
-
-    
     augmentMeansrep=do.call(rbind, 
-                         replicate(Nindependent, augmentMeans,
-                                   simplify = FALSE))
-    dataset=rbind(dataset,augmentMeansrep) 
+                            replicate(Nindependent, augmentMeans,
+                                      simplify = FALSE))
+    dataset=rbind(dataset,augmentMeansrep)
   } else
     augmentWeights=NULL
-     
+  
   #Include probability constraint to sum to 1
   b <- c(1, target)
   A <- (as.matrix(
@@ -194,7 +192,7 @@ tweights <-function(
 
 
 
-.how_close <- function(dataset, target) {
+.how_close <- function(dataset, target, supress_warnings=FALSE) {
   xstar=scale(dataset, center = FALSE)
   scl=attr(xstar,"scaled:scale")
   targetstar=target/scl
@@ -207,7 +205,8 @@ tweights <-function(
     stop("'ipop' did not converge.")
   
   best=as.vector(t(xstar) %*% primal(opt))*scl
-  warning(paste("Target apears to not be achievable. Replacing with the nearest achievable target in terms of scaled euclidian distance. New target is: \n", paste(best,collapse=", "),"\n"))
+  if(!supress_warnings)
+    warning(paste("Target apears to not be achievable. Replacing with the nearest achievable target in terms of scaled euclidian distance. New target is: \n", paste(best,collapse=", "),"\n"))
   return(best)
 }
 
@@ -215,7 +214,7 @@ tweights <-function(
   #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
   s=svd(A)
   if( (s$d[length(s$d)]/s$d[1]) < 1e-6)
-    warning("Matrix is ill conditioned (e.g. columns may be colinear). Please consider removing some columns.")
+    warning("Matrix is ill conditioned (e.g. columns may be colinear). Strongly consider removing some columns, using more data or not using 'tboot'.")
   vdinv = s$v %*% diag(1/s$d)
   x_star = (A %*% vdinv )
   target_star =   as.vector(t(vdinv) %*% b)
@@ -263,7 +262,7 @@ tweights <-function(
 
 .solveTrap=function(A,b) {
   tryCatch(solve(A,b), error = function(e) {
-    warning("Matrix was not invertible. Adding a small constant to the diagonal.")
+    warning("Matrix was not invertible. Adding a small constant to the diagonal.\n")
     e=eigen(A, symmetric=TRUE)
     const = max(e$values)*.001
     return(e$vectors %*% (diag(1/(e$values+const)) %*% (t(e$vector) %*% b)))
@@ -275,8 +274,8 @@ tweights <-function(
   
   #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
   s=svd(A)
-  if( (s$d[length(s$d)]/s$d[1]) < 1e-6)
-    warning("Matrix is ill conditioned (e.g. columns may be colinear). Please consider removing some columns.")
+  if( (s$d[length(s$d)]/s$d[1]) < sqrt(1e-6))
+    warning("Matrix is ill conditioned (e.g. columns may be colinear).  Strongly consider removing some columns, using more data or not using 'tboot.'\n")
   vdinv = s$v %*% diag(1/s$d)
   x_star = (A %*% vdinv )
   target_star =   as.vector(t(vdinv) %*% b)
@@ -305,17 +304,18 @@ tweights <-function(
   weights=weights/sum(weights)
   achievedMean=as.vector(t(dataset) %*% weights)
   names(achievedMean)=colnames(dataset)
-  if(is.null(originalTarget)) {
-    toprint= t(cbind(achievedMean, target))
-    rownames(toprint) =c("Achieved Mean", "Target Mean")
-    colnames(toprint)=colnames(dataset)
-  } else {
-    toprint= t(cbind(achievedMean, target, originalTarget))
-    rownames(toprint) =c("Achieved Mean", "Adjusted Target Mean", "Original Target Mean")
-    colnames(toprint)=colnames(dataset)
-  }
+
 
   if(!silent){
+    if(is.null(originalTarget)) {
+      toprint= t(cbind(achievedMean, target))
+      rownames(toprint) =c("Achieved Mean", "Target Mean")
+      colnames(toprint)=colnames(dataset)
+    } else {
+      toprint= t(cbind(achievedMean, target, originalTarget))
+      rownames(toprint) =c("Achieved Mean", "Adjusted Target Mean", "Original Target Mean")
+      colnames(toprint)=colnames(dataset)
+    }
     cat("----------------------------------------------------------------\n")
     cat("Optimization was successful. The weights have a sampleing\ndistribution with means close to the attemted target:\n")
     print(toprint)
@@ -329,7 +329,7 @@ tweights <-function(
   }
   if(any(weights>warningcut))
     warning(paste0("Some of the weights are larger than ", warningcut, 
-                   ". Thus your bootstrap sample may be overly dependent on a few samples. See vignette."))
+                   ". Thus your bootstrap sample may be overly dependent on a few samples. See vignette.\n"))
 
   
   ret = list(weights=weights,

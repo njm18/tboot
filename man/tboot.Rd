@@ -17,9 +17,15 @@ additional columns not included in the 'tweights' calll.}
 
 \item{fillMissingAug}{fill in missing augmentation with primary weights resampling.}
 }
+\value{
+A simulated dataset with 'nrow' rows.
+}
 \description{
 Bootstrap \code{nrow} rows of \code{dataset} using
 the given row-level weights.
+}
+\details{
+Bootstrap simulates a dataset using the tilted weights. Details a further documented in the vignette.
 }
 \seealso{
 \code{\link{tweights}}

@@ -4,16 +4,19 @@
 \alias{post_bmr}
 \title{Function post_bmr}
 \usage{
-post_bmr(nsims, tweights_bmr)
+post_bmr(nsims, weights_bmr)
 }
 \arguments{
 \item{nsims}{The number of posterior simulations to draw.}
 
-\item{tweights_bmr}{An object of class 'tweights_bmr' created using the 'tweights_bmr' function.}
+\item{weights_bmr}{An object of class 'tweights_bmr' created using the 'tweights_bmr' function.}
+}
+\value{
+A matrix of simulations from the posterior.
 }
 \description{
 Simulates the joint posterior based upon a dataset and specified marginal posterior distribution of the mean of selected variables.
 }
 \seealso{
-\code{\link{tweights}}
+\code{\link{tweights_bmr}}
 }

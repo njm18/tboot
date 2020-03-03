@@ -6,14 +6,14 @@
 \usage{
 tweights(dataset, target = apply(dataset, 2, mean), distance = "klqp",
   maxit = 1000, tol = 1e-08, warningcut = 0.05, silent = FALSE,
-  Nindependent = 0, augmentWeights = NULL)
+  Nindependent = 0)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
 
 \item{target}{Numeric vector of target column means. If the 'target' is named, then all elements of names(target) should be in the dataset.}
 
-\item{distance}{The distance to minimize. Must be either 'euchlidean' or 'kl' (i.e. Kullback-Leibler). 'klqp' is recomneded.}
+\item{distance}{The distance to minimize. Must be either 'euchlidean,' 'klqp' or 'klpq' (i.e. Kullback-Leibler). 'klqp' which is expontential tilting is recomneded.}
 
 \item{maxit}{Defines the maximum number of iterations for optimizing 'kl' distance.}
 
@@ -24,8 +24,19 @@ tweights(dataset, target = apply(dataset, 2, mean), distance = "klqp",
 \item{silent}{Allows silencing some messages.}
 
 \item{Nindependent}{Assumes the input also includes 'Nindependent'samples with independent columns. See details.}
-
-\item{augmentWeights}{List with weights for each variable marginal. Only has effect if Nindependent!=0.}
+}
+\value{
+An object of type \code{tweights}. This object conains the following components:
+\describe{
+  \item{weights}{tilted weights for resampling}
+  \item{originalTarget}{Will be null if target was not changed.}
+  \item{target}{Actual target that was attempted.}
+  \item{achievedMean}{Achieved mean from tilting.}
+  \item{dataset}{Inputed dataset.}
+  \item{X}{Reformated dataset.}
+  \item{Nindependent}{Inputed 'Nindependent' option.}
+  \item{augmentWeights}{Used for 'Nindependent' option weights for each variable.}
+}
 }
 \description{
 Returns a vector \code{p} of resampling probabilities 
@@ -52,12 +63,7 @@ and lagrange multipliers to solve the Kullback-Leibler distance optimization.
 
 The 'Nindependent' option augments the dataset by assuming some additional specified
 number of patients. These pateints are assumed to made up of a random bootstrapped sample
-from the dataset for each variable marginaly leading to indepenent variables. 
-The 'augmentWeights' are the weights of the assumed bootstrap weights for each independent
-variable. If augmentWeights is not specified, it will be set using tboot so each weight marginally
-leads to achieving the target. This augmentations is a bit like adding a small constant
-to the diagonal of the variation matrix. I has additional stability in convergence and will
-make it slightly easier to achieve the target mean with small sample sizes.
+from the dataset for each variable marginaly leading to indepenent variables.
 }
 \seealso{
 \code{\link{tboot}}

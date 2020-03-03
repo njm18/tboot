@@ -10,7 +10,6 @@
 #' @param warningcut Sets the cutoff for determining when a large weight will trigger a warnint.
 #' @param silent Allows silencing some messages.
 #' @param Nindependent Assumes the input also includes 'Nindependent'samples with independent columns. See details.
-#' @param augmentWeights List with weights for each variable marginal. Only has effect if Nindependent!=0. Generally this should be left as NULL. 'tweights' will fill in automatically.
 #' @details
 #' Reconstructs a correlated joint posterior from simulations from a marginal posterior.
 #' Algorythm is summarized more fully in the vignettes.
@@ -59,7 +58,7 @@ tweights_bmr=function(dataset,
   target=sapply(marginal, mean)
   marginal_sd=sapply(marginal, sd)
   w=tweights(dataset, target, distance = distance, 
-             maxit = maxit, tol = tol, warningcut=0.05, silent = silent,
+             maxit = maxit, tol = tol, warningcut=warningcut, silent = silent,
              Nindependent=Nindependent)
   X=w$X
   
@@ -92,6 +91,9 @@ tweights_bmr=function(dataset,
   D=diag(1/sqrt(diag(V)))
   C=D %*% V %*% D
   
+  if(any(is.na(diag(D)))| any(is.infinite(diag(D)))){
+    stop("Implied covariance function was two small. Most likely the assumed marginal distribution is very different from the observed data in some way.")
+  }
   #Note the following code is borrowed and modified from MASS mvrnorm function
   eS <- eigen(C, symmetric = TRUE)
   ev <- eS$values

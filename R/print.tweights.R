@@ -1,11 +1,11 @@
-
+#' @method print tweights    
 #' @export
-print.tweights <- function(obj) {
-  weights=obj$weights
-  target=obj$target
-  originalTarget=obj$originalTarget
-  achievedMean=obj$achievedMean
-  Nindependent=obj$Nindependent
+print.tweights <- function(x, ...) {
+  weights=x$weights
+  target=x$target
+  originalTarget=x$originalTarget
+  achievedMean=x$achievedMean
+  Nindependent=x$Nindependent
   if(is.null(originalTarget)) {
     toprint= t(cbind(achievedMean, target))
     rownames(toprint) =c("Achieved Mean", "Target Mean")
@@ -20,11 +20,11 @@ print.tweights <- function(obj) {
   cat("----------------------------------------------------------------\n")
   cat("Optimization was successful. The weights have a sampleing\ndistribution with means close to the attemted target:\n")
   print(toprint)
-  cat("Maximum weight was: ", max(obj$weights),"\n")
+  cat("Maximum weight was: ", max(x$weights),"\n")
   if( Nindependent >0 )
     cat("Data augmented with", Nindependent, "samples with independent variables.",
         "\nThe final weight of these samples was: ", 
-        sum(weigths[(length(weights)-Nindependent+1):length(weights)]), "\n")
+        sum(weights[(length(weights)-Nindependent+1):length(weights)]), "\n")
   
   cat("----------------------------------------------------------------\n")
   

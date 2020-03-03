@@ -5,8 +5,7 @@
 \title{Function tweights_bmr}
 \usage{
 tweights_bmr(dataset, marginal, distance = "klqp", maxit = 1000,
-  tol = 1e-08, warningcut = 0.05, silent = FALSE, Nindependent = 1,
-  augmentWeights = NULL)
+  tol = 1e-08, warningcut = 0.05, silent = FALSE, Nindependent = 1)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
@@ -24,11 +23,32 @@ tweights_bmr(dataset, marginal, distance = "klqp", maxit = 1000,
 \item{silent}{Allows silencing some messages.}
 
 \item{Nindependent}{Assumes the input also includes 'Nindependent'samples with independent columns. See details.}
-
-\item{augmentWeights}{List with weights for each variable marginal. Only has effect if Nindependent!=0. Generally this should be left as NULL. 'tweights' will fill in automatically.}
+}
+\value{
+An object of type \code{tweights}. This object conains the following components:
+\describe{
+  \item{Csqrt}{Matrix square root of the covariance.}
+  \item{tweights}{Result from the call to tweigths.}
+  \item{marginal}{Input marginal simulations.}
+  \item{dataset}{Formatted dataset.}
+  \item{target}{Attempted target.}
+  \item{distance,maxit,tol, Nindependent, warningcut}{Inputed values to 'tweights_bmr'.}
+  \item{Nindependent}{Inputed 'Nindependent' option.}
+  \item{augmentWeights}{Used for 'Nindependent' option weights for each variable.}
+  \item{weights}{tilted weights for resampling}
+  \item{originalTarget}{Will be null if target was not changed.}
+  \item{marginal_sd}{Standard deviation of the marginals.}
+}
 }
 \description{
-Setup the needed prequisitesin order to prepare for bayesian marginal reconstruction (including a call to tweights). Takes as input simulations from the posterior marginal distribution of variables in a dataset.
+Setup the needed pre-requisites in order to prepare for bayesian marginal reconstruction (including a call to tweights). Takes as input simulations from the posterior marginal distribution of variables in a dataset.
+}
+\details{
+Reconstructs a correlated joint posterior from simulations from a marginal posterior.
+Algorythm is summarized more fully in the vignettes.
+The 'Nindependent' option augments the dataset by assuming some additional specified
+number of patients. These pateints are assumed to made up of a random bootstrapped sample
+from the dataset for each variable marginaly leading to indepenent variables.
 }
 \seealso{
 \code{\link{tweights}}

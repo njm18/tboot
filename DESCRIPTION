@@ -22,14 +22,15 @@ License: GPL-3
 Depends:
   R (>= 3.2.0)
 Imports:
-  bindata,
   stats,
   quadprog,
   kernlab
 Suggests:
   knitr,
   rmarkdown,
-  testthat
+  testthat,
+  MASS,
+  ggplot2
 VignetteBuilder: knitr
 URL: https://github.com/wlandau-lilly/tboot
 BugReports: https://github.com/wlandau-lilly/tboot/issues

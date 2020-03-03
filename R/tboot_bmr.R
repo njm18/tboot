@@ -56,7 +56,7 @@ tboot_bmr=function(nrow, weights_bmr, tol_rel_sd=.05) {
   ret=tboot(nrow=nrow,
             weights=weights,
             dataset=weights$X, #for now don't include extra columns
-            fillMissingAug=fillMissingAug)
+            fillMissingAug=FALSE)
   tmp=mu
   names(tmp)=names(weights_bmr$marginal)
   attr(ret, "post_bmr")=tmp
