@@ -9,5 +9,4 @@
 #' @importFrom stats optim rbinom var pnorm quantile rnorm sd
 #' @importFrom kernlab ipop primal how
 #' @importFrom quadprog solve.QP
-#' @suggests quadprog solve.QP
 NULL
