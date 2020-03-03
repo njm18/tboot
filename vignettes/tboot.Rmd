@@ -5,14 +5,16 @@ date: "`r Sys.Date()`"
 bibliography: bibliography.bib
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{tboot}
+  %\VignetteIndexEntry{Tutorial on 'tboot'}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 # Tilted Bootstrap
 
-The tilted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows of dataset in such a way that the column means approximate a user-defined target. In other words, you can control the marginal means while still preserving intricate relationships among the variables. The "Tilted Bootstrap" is related to the inferential methods proposed by Efron and others [@efron1981nonparametric]. However, the methods implemented in the 'tboot' package are used in a multivariate situation and intended for simulating future outcomes instead of making inference.
+The tilted bootstrap is a weighted resampling technique. The goal is to take a reasonably realistic sample of the rows of dataset in such a way that the column means approximate a user-defined target. In other words, the user can control the marginal means while still preserving intricate relationships among the variables. The "Tilted Bootstrap" is related to the inferential methods proposed by Efron and others [@efron1981nonparametric]. However, the methods implemented in the 'tboot' package are used in a multivariate situation and intended for simulating future outcomes instead of making inference. 
+
+This vignette is a tutorial on the use of the 'tboot' and 'tweights' functions which may be used for 'scenario based' frequentist simulations. That is, the user must specify the exact mean for each variable to perform the simulation. An alternative Bayesian approach where the user specifies a marginal distribution is also implemented in the 'tboot' package in the 'tboot_bmr,' 'post_bmr,' and 'tweights_bmr.' A seperate vignette is available as a tutorial for the Bayesian approach. 
 
 # A simulated example dataset
 
@@ -85,7 +87,7 @@ The red line in the histogram above represents the probability for uniform resam
 Suppose we wish to constrain the mean for only as subset of the variables. For example, we may wish to constrain only the variables 'quant2' and 'bin1' to have a mean value of 0.4 and 0.5 respectively. We would determine the weights as follows:
 ```{r targetweight, cache = FALSE}
 weights <- tweights(dataset = dataset, 
-                    target = c(quant2=0.4, bin1=0.5))
+                    target = c(quant1=0.5, quant2=0.5))
 ```
 
 We can now bootstrap from the entire dataset as like this:
@@ -96,6 +98,18 @@ rbind("dataset mean"    = colMeans(dataset),
 ```
 
 As may be seen, by changing the target mean of 'quant2' and 'bin1' we have also significantly changed the mean of other variables such as 'quant1' and 'bin2.' In many cases this is exactly what we would want to do, but it may occasionally be problematic. For example, if the one of the variables is a baseline variable in a clinical trial. In this case, it is recommended that the user constrain the mean of the baseline covariate to be the same as in the observed data.
+
+The actual weights for each sample may be extracted as 'weights$weigths.' As an instructive look at what the weights represent here is a graph of the weights. The red point marks the position of the new assumed mean while the black point marks the position of the data sample mean.
+
+```{r boot21, cache = FALSE}
+pltdta=data.frame(dataset[,c("quant1", "quant2")], weights=weights$weights)
+library(ggplot2)
+ggplot(pltdta, aes(x=quant1, y=quant2, color=weights)) + geom_point() + 
+  geom_point(aes(x=.6, y=.6), shape = 3, colour = "red", size = 2, stroke = 3)+
+  geom_point(aes(x=mean(pltdta$quant1), y=mean(pltdta$quant2)),
+             shape = 3, colour = "black",  size = 2, stroke = 3)
+
+```
 
 # Methodology
 

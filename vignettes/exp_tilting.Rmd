@@ -51,7 +51,6 @@ The nonparametric kernel density of the tilted distribution is given in parallel
 ```{r}
 library(tboot)
 
-library(bindata)
 ```
 
 ```{r, fig.cap="The blue dashed line is the density generating the original data.  The black dashed line is the kernel density on the tilted bootstrap samples. The yellow line is the standard normal density. The mean of the true density are 0.25, 0.5, 0.75, 1.5 respectively. This figure shows the tilted bootstrap samples match the target distribution very closely.", fig.align="center", fig.width=6, warning=FALSE, echo=TRUE}
