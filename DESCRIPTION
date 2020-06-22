@@ -3,20 +3,20 @@ Title: Tilted Bootstrap
 Version: 0.2.0
 Authors@R: c(
   person(
-    family = "Landau",
-    given = c("William", "Michael"),
-    email = "will.landau@lilly.com",
-    role = c("aut", "cre")),
-  person(
     family = "Morris",
     given = "Nathan",
     email = "morris_nathan@lilly.com",
-    role = "aut"),
+    role = c("aut", "cre")),
+  person(
+    family = "Landau",
+    given = c("William", "Michael"),
+    email = "will.landau@lilly.com",
+    role = c("aut")),
   person(
     family = "Eli Lilly and Company",
     role = "cph"))
 Description: Package supports weighted resampling of data rows
-  to achieve target column means. It also supports constructing 
+  to achieve target column means. It also supports a 
   a huristic appraoch to constructing a joint distribumtion from marginals.
 License: GPL-3
 Depends:
@@ -32,6 +32,6 @@ Suggests:
   MASS,
   ggplot2
 VignetteBuilder: knitr
-URL: https://github.com/wlandau-lilly/tboot
-BugReports: https://github.com/wlandau-lilly/tboot/issues
-RoxygenNote: 6.1.1
+URL: https://github.com/nmorris-lilly/tboot
+BugReports: https://github.com/nmorris-lilly/tboot/issues
+RoxygenNote: 7.0.2

@@ -31,3 +31,6 @@ vignettes/.*_files
 ^.*\.svg$
 ^\.Rproj\.user$
 ^.*\.yml$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
