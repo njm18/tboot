@@ -1,5 +1,5 @@
 ---
-title: "Bayesian Marginal Reconstruction"
+title: "Gettings Started with Bayesian Marginal Reconstruction"
 author: "Nathan Morris"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
@@ -156,8 +156,8 @@ The algorithm for 'post_bmr()' takes the output from 'tweights_bmr()' and procee
 
 The algorithm for 'tboot_bmr()' takes the output from 'tweights_bmr()' and proceeds as follows:
 
-1. Simulate the posterior mean $mu$ as in the algorithm above.
-2. Use tweights and tboot to simulate data with a mean of $mu$. The option 'Nindependent' is always non-zero to help avoid errors. See the vignette on 'tweights' for more information on this option.
+1. Simulate the posterior mean $\mu$ as in the algorithm above.
+2. Use tweights and tboot to simulate data with a mean of $\mu$. The option 'Nindependent' is always non-zero to help avoid errors. See the vignette on 'tweights' for more information on this option.
 
 ## Justifying the algorithm
 The algorithm described above may be justified in several ways. First, it is heuristically plausible. One would expect at first thought that when two variables are correlated, a drug which influences one of the variables will most likely influce the other. Second, in some specific cases, the algorythm may be justified via Bayesian Assymptotics using the 'Berstein Von-Misus' theorem. This document will not attempt to fully work out this more theoretical approach.

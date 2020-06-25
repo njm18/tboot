@@ -1,5 +1,5 @@
 ---
-title: "Bayesian Marginal Reconstruction"
+title: "Bayesian Marginal Reconstruction Simulations"
 author: "Nathan Morris"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
@@ -11,12 +11,12 @@ vignette: >
 ---
 
 
-#Comparing Bayesian Marginal Reconstruction (BMR) with Full Multivariate Bayesian Analysis for Multivariate Binary Data
+# Introduction
 
-The following example is conceived to demonstrate the similarity of BMR to full joint Bayesian analysis in some cases.
+The following example is conceived to demonstrate the similarity of results from Bayesian Marginal Reconstruction (BMR) to full joint Bayesian analysis.
 
-##The Example Scenario and Simulated Datasets
-First, we create several scenarios where we assume we have 4 variables each of which is binary leading to $2^4=16$ possible outcomes in combination. We assign probabilities to each combination for 2 different simulated scenarios.
+## The Example Scenario and Simulated Datasets
+First, we create a sscenario where we assume we have 4 variables each of which is binary leading to $2^4=16$ possible outcomes in combination. We assign probabilities to each combination for 2 different simulated scenarios.
 
 ```{r cache = FALSE}
 library(tboot)
@@ -60,7 +60,7 @@ round(scenarioCorrelation(prob_2),2)
 round(scenarioMean(prob_2),2)
 ```
 
-Next we simulate data sets with a range of sample sizes. For each possible sample size we simulate 50 datasets.
+Next we simulate data sets with a range of sample sizes. For each possible sample size we simulate 20 datasets.
 
 ```{r cache = FALSE}
 sim = function(N_per_datset,N_datasets, p) {
@@ -72,17 +72,17 @@ sim = function(N_per_datset,N_datasets, p) {
 
 ss=c(25, 50, 200, 400)
 sim_data_1= lapply(ss, function(N_per_datset) 
-  sim(N_per_datset,50,prob_1))
+  sim(N_per_datset,20,prob_1))
 sim_data_2= lapply(ss, function(N_per_datset) 
-  sim(N_per_datset,50,prob_2))
+  sim(N_per_datset,20,prob_2))
 names(sim_data_1)=names(sim_data_2)=paste0("N=",ss)
 ```
 
-##Comparing BMR Posterior Distributions from post_bmr vs Full Bayesian Analysis
+## The Posterior from BMR and Full Bayesian Analysis are Similar
 
 Using the above simulated datasets we use marginal Bayesian calculations followed by BMR to sample from the joint posterior. We assume a simple uniform prior for the marginal simulations.
 
-```{r cache = FALSE}
+```{r bmrsim, cache = FALSE}
 set.seed(2020)
 
 
@@ -99,7 +99,7 @@ get_post_bmr= function(marginal_data,individual_data) {
 
 #If twieights or tboot throw an error or warning assume 
 # (i.e. BMR analysis should not be performed in these cases)
-missingSim=matrix(NA,5000,4); colnames(missingSim)=c("x1","x2","x3","x4")
+missingSim=matrix(NA,2500,4); colnames(missingSim)=c("x1","x2","x3","x4")
 
 #analyze all simulated datasets
 anayze_all_BMR=function(sim_dta, sim_dta_cor) {
@@ -123,7 +123,7 @@ bmr_results_2=anayze_all_BMR(sim_data_1,sim_data_2)
 Next we analyze these datasets by using a fully Bayesian analysis. We consider that
 the prior probabilities assigned to each possible outcome (i.e., 2^4 possible outcomes) follow a Dirichlet prior with parameter rep(1/8,16). This prior is marginally uniform for each variable.
 
-```{r cache = FALSE}
+```{r full, cache = FALSE}
 
 rdirichlet  = function(n, alpha) {
   x <- matrix(rgamma(n*length(alpha), alpha), nrow=length(alpha))  
@@ -188,7 +188,7 @@ make_graph=function(g,title) {
 
 Now we investigate the marginals graphically. As may be seen the quantiles and median of the joint method and BMR are very similar. The similarity grows stronger as the sample size increases.
 
-```{r cache = FALSE}
+```{r quantile95, cache = FALSE,  fig.height = 2, fig.width = 5}
 for(i in 1:4)
   show(make_graph(function(d) median(d[,i]), paste0("Median of X",i)))
 
@@ -202,7 +202,7 @@ for(i in 1:4)
 
 Similarly we investigate the correlation between several variables. We will not print out all the correlations. 
 
-```{r cache = FALSE}
+```{r cor, cache = FALSE,  fig.height = 2, fig.width = 5}
 for(i in 1:3)
   for(j in (i+1):4)
   show(make_graph(function(d) cor(d[,i],d[,j]),
@@ -210,8 +210,8 @@ for(i in 1:3)
 ```
 
 
-Finally we investigate the quantiles in several random directional transformations of the space:
-```{r cache = FALSE}
+Next we investigate the quantiles in several random directional transformations of the space:
+```{r quantiledir, cache = FALSE,  fig.height = 2, fig.width = 5}
 for(i in 1:5) {
   direction=rnorm(4)
   direction=direction/sum(direction^2)
@@ -226,32 +226,19 @@ for(i in 1:5) {
   
 ```
 
+For all of these plots it may be seen that the BMR approach is quite similar to the full Bayes approach. The difference between quantiles and point estimates is very small on the y axis of each plot.
 
 
-Finally we investigate the quantiles in several random directional transformations of the space:
-```{r cache = FALSE}
-for(i in 1:5) {
-  direction=rnorm(4)
-  direction=direction/sum(direction^2)
-  show(make_graph(
-    function(d) {
-      quantile(d %*% direction, .95, na.rm=TRUE)},
-    paste0("Quantile of p %*% c(",paste(round(direction,2), collapse=","),")")
-  )
-  )
-}
-  
-```
+## Trial Design Simulation Results
+Consider that we want to test the hypothesis for each variable that the proportion is 0.6. We wish to calculate the probability of succeeding (with p-value 0<.05) on ALL 4 endpoints with a future trial sample size of 400. Note that simultanious success on 4 different endpoints requires that correlation between endpoints be appropriately considered. 
 
+Also, consider that the data available for trial design comes from a sample size of 50 patients as previously simulated. It is expected that a larger samples size for the design data would only make the results from different methods more similar. We will only look at 5 simulated datasets because the simulation is computationally expensive with 1000 future simulated trials based on each dataset.
 
-##Comparing 'tboot_bmr' vs Full Bayesian Analysis
-Consider that we want to test the hypothesis for each variable that the proportion is 0.6. We wish to calculate the probability of succeeding on all 4 endpoints with a future trial sample size of 400. Also, consider that the data available comes from a sample size of 50 patients as previously simulated. We will only look at 10 simulated datasets because the simulation is computationally expensive with 1000 future simulated trials based on each dataset.
-
-```{r cache = FALSE}
+```{r look_at_hyptest, cache = FALSE}
 set.seed(2020)
 
-sim_data_1_50= sim_data_1[["N=50"]][1:10]
-sim_data_2_50= sim_data_2[["N=50"]][1:10]
+sim_data_1_50= sim_data_1[["N=50"]][1:5]
+sim_data_2_50= sim_data_2[["N=50"]][1:5]
 
 
 #this function simulates a series of trials with success or failure

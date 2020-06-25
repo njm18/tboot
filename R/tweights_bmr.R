@@ -78,12 +78,12 @@ tweights_bmr=function(dataset,
   
   #first moment
   m1_all=w$achievedMean
-  m1_independent=sapply(colnames(X), function(nm) mean(X[,nm] %*%w$augmentWeights[[nm]] ))
+  m1_independent=sapply(colnames(X), function(nm) (X[,nm] %*%w$augmentWeights[[nm]] ))
   
   #second moment
   m2_notindependent=crossprod(X[1:nrow(dataset),]*normalized_notindependent_weights,X)
   m2_indepentdent= tcrossprod(m1_independent)
-  diag(m2_indepentdent)=sapply(colnames(X), function(nm) mean( (X[,nm]^2) %*%w$augmentWeights[[nm]] ))
+  diag(m2_indepentdent)=sapply(colnames(X), function(nm) ( (X[,nm]^2) %*%w$augmentWeights[[nm]] ))
   m2_all=m2_notindependent*(1-p_independent) + m2_indepentdent*p_independent
   
   #variance and correlation

@@ -4,8 +4,16 @@
 \alias{tweights_bmr}
 \title{Function tweights_bmr}
 \usage{
-tweights_bmr(dataset, marginal, distance = "klqp", maxit = 1000,
-  tol = 1e-08, warningcut = 0.05, silent = FALSE, Nindependent = 1)
+tweights_bmr(
+  dataset,
+  marginal,
+  distance = "klqp",
+  maxit = 1000,
+  tol = 1e-08,
+  warningcut = 0.05,
+  silent = FALSE,
+  Nindependent = 1
+)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
