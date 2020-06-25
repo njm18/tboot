@@ -1,5 +1,5 @@
 ---
-title: "Tilted Bootstrap"
+title: "Getting Started with the Tilted Bootstrap"
 author: "Nathan Morris, Will Landau"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
@@ -43,7 +43,7 @@ dataset=as.matrix(cbind(
 colMeans(dataset)
 ```
 
-# Example 1: Constraining the mean for a all of variables
+# Example 1: Constraining the mean for all variables in the data
 
 Suppose that, in the bootstrapped dataset, we want all the column means to be around 0.4.
 
@@ -109,6 +109,21 @@ ggplot(pltdta, aes(x=quant1, y=quant2, color=weights)) + geom_point() +
   geom_point(aes(x=mean(pltdta$quant1), y=mean(pltdta$quant2)),
              shape = 3, colour = "black",  size = 2, stroke = 3)
 
+```
+
+# Example 3: Constraining the mean and variance for a variable
+
+The variance can also be constrained by creating a variable with the second moment. For example, suppose we wanted to constrain the variance of quant1 to 0.75 and the mean to be 0.5 . We could do as follows:
+
+```{r var, cache = FALSE}
+dataset=cbind(dataset, quant1_2= (dataset[,"quant1"]-0.5)^2)
+weights <- tweights(dataset = dataset, 
+                    target = c(quant1=0.5, quant1_2=0.75),)
+boot <- tboot(weights, nrow = 1e5)
+var(dataset[,"quant1"])
+var(boot[,"quant1"])
+rbind("dataset mean"    = colMeans(dataset),
+      "tbootstrap mean" = colMeans(boot))
 ```
 
 # Methodology
@@ -222,19 +237,19 @@ The algorithm may fail to converge properly, and an error or warning will be iss
 As previously mentioned if any sample is too highly weighted, the tilted bootstrap approach is not recommended. See Example 1 above for more discussion about this issue.
 
 ## Augmented Sampling to Improved Stability
-In many cases, the problems described above can be avoided by the use of the 'Nindependent' option in the 'tweights' function. We suggest that typically if this option is used the user set Nindependent=1. This will set it up so that one one additional "special" sample is assumed to exist in the original data. If 'tboot' draws this special sample, it will proceed to bootstrap each variable independently so that the variables are independent for that patient. The weights for each independent variable bootstrap are set so that (if possible) the "special" sample would average to the target. In effect, the Nindependent option makes the correlation structure slightly less dependent. In exchange for the small bias created, the user will be able to better achieve a target even when the dataset available is small or ill-conditioned. This method is used for the Bayesian marginal reconstruction method as it helps eliminate errors in corners of the parameters space that do not fit well with the data but still occasionally occur. In these cases, the independent sample may occur frequently, so the simulation defaults towards greater independence when the data is not consistent with the parameter.
-As an example of using Nindependent option consider
+In many cases, the problems described above can be avoided by the use of the 'Nindependent' option in the 'tweights' function. We suggest that typically, if this option is used, the user set Nindependent=1. This means that one one additional "special" sample is assumed to exist in the original data. If 'tboot' draws this special sample, it will proceed to bootstrap each variable independently so that the variables are independent for that patient. The weights for each independent variable bootstrap are set so that (if possible) the "special" sample would average to the target. In effect, the Nindependent option makes the correlation structure slightly less dependent. In exchange for the small bias created, the user will be able to better achieve a target even when the dataset available is small or ill-conditioned. This method is used for the Bayesian marginal reconstruction method as it helps eliminate errors in corners of the parameters space that do not fit well with the data but still occasionally occur. In these cases, the independent sample may occur frequently, so the simulation defaults towards greater independence when the data is not consistent with the parameter.
+Here is an example of using the Nindependent option where correlation is slightly smaller with augmentation:
 ```{r boot3, cache = FALSE}
-x1=rnorm(75)
-x2=rnorm(75)*sqrt(.1) + x1*sqrt(.9)
+x1=rnorm(1000)
+x2=rnorm(1000)*sqrt(.1) + x1*sqrt(.9)
 dataset2=data.frame(x1=x1, x2=x2)
 
 weights_no_augmentation <- tweights(dataset = dataset2, 
-                    target = c(x1=0.1, x2=-0.1))
+                    target = c(x1=0.2, x2=-0.2))
 weights_augmentation <- tweights(dataset = dataset2, 
-                    target = c(x1=0.1, x2=-0.1), Nindependent=1)
-boot_no_augmentation <- tboot(weights_no_augmentation, nrow = 1e3)
-boot_augmentation <- tboot(weights_no_augmentation, nrow = 1e3)
+                    target = c(x1=0.2, x2=-0.2), Nindependent=1)
+boot_no_augmentation <- tboot(weights_no_augmentation, nrow = 1e5)
+boot_augmentation <- tboot(weights_augmentation, nrow = 1e5)
 cor(boot_no_augmentation)
 cor(boot_augmentation)
 

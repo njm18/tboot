@@ -1,5 +1,5 @@
 ---
-title: "Some test cases of the `tboot` package for exponential tilting"
+title: "Exponential Tilting Simulations"
 author: "Nathan Morris, Lanfeng Pan"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
@@ -19,27 +19,12 @@ knitr::opts_chunk$set(
 ```
 
 # Introduction
-The most common type of bootstrap [@efron1981nonparametric] is to sample from the empirical distribution derived from observed data. Such samples will be distributed withe the same mean as the observed data. But if the goal is to obtain samples that satisfying certain conditions on the mean while still being otherwise similar to the observed data, this approach will not be helpful. The exponentially tilted bootstrap, or bootstrap with tilting [@johns1988], aims to  obtain such samples. In this document we use simulation to describe some of the properties of the exponentially tilted bootstrap.
+The most common type of bootstrap [@efron1981nonparametric] is to sample from the empirical distribution derived from observed data. Such samples will be distributed with the same mean as the observed data. But if the goal is to obtain samples that satisfying certain conditions on the moments while still being otherwise similar to the observed data, samples from the observed data must be drawn with unequal probability. The exponentially tilted bootstrap [@johns1988] is one approach to defining an unequal propability for drawing each observed sample.  
 
+Denote the observed data as $X_n=\{x_1, \ldots, x_n\}$ with $x_i$ a vector of length $p$ and assume $x_i$ is drawn from a distribution $f_{\theta}(x)$  with parameters $\theta$. The tilted bootstrap approach will draw samples with replacement from $X_n$ where the probability of selecting the $i^{th}$ sample is $p_i = exp(\lambda \cdot x_i)/C_1$ where $\lambda$ is some vector and $C_1$ is a normalizing constant. 
 
+We would expect that as $n$ increases the exponential tilted bootstrap distribution will become similar to the distribution $g(x)=f_{\theta}(x) exp(\lambda \cdot x) / C_2$ where $C_2$ is a normalizing constant. We show from the brief simulations below that this hypotheis is empirically correct. Theoretical derivations of the resulting distribution from exponetial tilting may be found in [@fuh2013efficient] and [@asmussen2007stochastic].
 
-# Model
-Denote the observed data as $\{X_1, \ldots, X_n\}$ and assume it comes from a certain distribution family with parameter $\theta=(\theta_1^T, \theta_2^T)^T$. Assume the maximal likelihood estimate of $\hat{\theta}_1$ can be expressed as linear combination of $X_i$ for $i=1,\ldots,n$. This includes many parameters such as mean and variance. 
- 
-The goal is to obtain samples such that $\hat{\theta}_1 = \theta_{0;1}$.
-
-Assume there is an inclusion probability 
-$\boldsymbol{q}=(q_1,\ldots,q_n)^T$ affiliated to the observed data, such that any samples drawn from the observed data with inclusion probability $\boldsymbol{q}$ satisfies 
-$$
-\hat{\theta}_1^{(b)} = \theta_{0;1}.
-$$
-
-There may be multiple $\boldsymbol{q}$ meeting this requirement and different $\boldsymbol{q}$ results into different distribution.
-One intuitive way is minimizing the KL distance between tilted data and the observed data
-$$
-\sum_i q_i log\{q_i/(1/n)\}.
-$$
-The resulted $q_i$ will be proportional to $\exp\{\boldsymbol{X}_i \boldsymbol{\lambda}\}$, which is equivalent to exponential tilting.
 
 
 # Simulations
