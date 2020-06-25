@@ -4,9 +4,16 @@
 \alias{tweights}
 \title{Function \code{tweights}}
 \usage{
-tweights(dataset, target = apply(dataset, 2, mean), distance = "klqp",
-  maxit = 1000, tol = 1e-08, warningcut = 0.05, silent = FALSE,
-  Nindependent = 0)
+tweights(
+  dataset,
+  target = apply(dataset, 2, mean),
+  distance = "klqp",
+  maxit = 1000,
+  tol = 1e-08,
+  warningcut = 0.05,
+  silent = FALSE,
+  Nindependent = 0
+)
 }
 \arguments{
 \item{dataset}{Data frame or matrix to use to find row weights.}
@@ -35,7 +42,6 @@ An object of type \code{tweights}. This object conains the following components:
   \item{dataset}{Inputed dataset.}
   \item{X}{Reformated dataset.}
   \item{Nindependent}{Inputed 'Nindependent' option.}
-  \item{augmentWeights}{Used for 'Nindependent' option weights for each variable.}
 }
 }
 \description{

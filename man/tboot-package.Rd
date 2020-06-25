@@ -3,13 +3,9 @@
 \docType{package}
 \name{tboot-package}
 \alias{tboot-package}
-\title{Twisted Bootstrap.
-Weighted resampling of data rows
-to achieve target column means.}
+\title{tboot: tilted bootstrapping and Bayesian marginal reconstruction.}
 \description{
-Twisted Bootstrap.
-Weighted resampling of data rows
-to achieve target column means.
+tboot: tilted bootstrapping and Bayesian marginal reconstruction.
 }
 \references{
 \url{https://github.com/wlandau-lilly/tboot}

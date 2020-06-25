@@ -43,7 +43,6 @@
 #'   \item{dataset}{Inputed dataset.}
 #'   \item{X}{Reformated dataset.}
 #'   \item{Nindependent}{Inputed 'Nindependent' option.}
-#'   \item{augmentWeights}{Used for 'Nindependent' option weights for each variable.}
 #' }
 #' 
 #' 
