@@ -1,6 +1,4 @@
-#' Twisted Bootstrap.
-#' Weighted resampling of data rows
-#' to achieve target column means.
+#' tboot: tilted bootstrapping and Bayesian marginal reconstruction.
 #' @docType package
 #' @name tboot-package
 #' @author William Michael Landau \email{will.landau@@lilly.com}
