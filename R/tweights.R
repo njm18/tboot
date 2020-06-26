@@ -103,7 +103,7 @@ tweights <-function(
     #find a target that is achievable set the independent weights
     # to offset the so that we can achieve the bound.
     possible_target = .how_close(dataset, target, supress_warnings=TRUE)  
-    independent_target = target - (possible_target-target)
+    independent_target = target - (possible_target-target)*1.01 #1.01 used to numerically insure not on boundary of achievable
     independent_target = ifelse(independent_target<bounds[1,],bounds[1,],independent_target)
     independent_target = ifelse(independent_target>bounds[2,],bounds[2,],independent_target)
     
@@ -261,7 +261,6 @@ tweights <-function(
 
 
 .renormKLqp=function(lambda_n, x_star,lambda_nnorm_direction) {
-  lambda_n=lambda_n + v0*alpha
   xlambda_n=x_star %*% lambda_n 
   mx=max(xlambda_n)
   pi_n=as.vector(exp(xlambda_n -mx))
@@ -284,7 +283,8 @@ tweights <-function(
   opt=optimise(g,interval=c(0,1))
   alpha=opt$minimum
   ret=lambda_n + v0*alpha
-  return(ret)#.renormKLqp(target_star + v0*alpha,  x_star,lambda_nnorm_direction))
+
+  return(ret)#.renormKLqp(ret, x_star,lambda_nnorm_direction))
 }
 
 .solveTrap = function(A,b) {
@@ -337,18 +337,19 @@ tweights <-function(
     
     
     if(restart<maxrestart & (steps %% 100)==0 ) {
-      probs=sort(c(.1,.2), decreasing = TRUE)
+      probs=sort(pi_n_expmx, decreasing = TRUE)
       probsCumsum=cumsum(probs)
       normconst=probsCumsum[length(probsCumsum)]
-      cuti=max(which(probsCumsum<.9*normconst))
+      cuti=max(which(probsCumsum<.9*normconst),1)
+
       if(cuti<=max(2, round(.1*nrow(A)))) { #90% of probability belongs to 10% of samples
-        cutoff =probs[cuti]
-        flg=pi_n_expmx>=cutoff
-        lambda_n=tryCatch(.newtonKLqp(A[!flg,,drop=FALSE], b, maxit=maxit, tol=tol, maxrestart=0)$lambda_n, 
-                          error = function(e) .renormKLqp(rnorm(ncol(A)), x_star,lambda_nnorm_direction)    
+        cutoff = probs[cuti]
+        flg = pi_n_expmx < cutoff
+        possible_target=2*b-colMeans(A[!flg,,drop=FALSE])
+        lambda_n=tryCatch(.newtonKLqp(A[flg,,drop=FALSE], possible_target, maxit=maxit, tol=tol, maxrestart=0)$lambda_n, 
+                          error = function(e) rnorm(ncol(A))    
         )
         lambda_n=.renormKLqp(lambda_n, x_star, lambda_nnorm_direction)   
-        cat(lambda_n,"\n")
         restart=restart+1
       } 
     }
