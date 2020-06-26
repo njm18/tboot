@@ -11,7 +11,7 @@
 #' @return 
 #' A simulated dataset with 'nrow' rows. The underlying 'true' posterior parameter value is an attribute which can be extracted useing \code{attr(ret, "post_bmr")} where 'ret' is the matrix.
 
-tboot_bmr=function(nrow, weights_bmr, tol_rel_sd=.05) {
+tboot_bmr=function(nrow, weights_bmr, tol_rel_sd=.01) {
   if(length(tol_rel_sd)!=1 | !is.numeric(tol_rel_sd))
     stop("'tol_rel_sd' must be a numeric fector")
   if(missing(nrow))
@@ -25,31 +25,45 @@ tboot_bmr=function(nrow, weights_bmr, tol_rel_sd=.05) {
   if(length(nrow)!=1)
     stop("'nrow' must be length 1.")
   
+  
+  #Will try to recover once, just error out if it happens twice.
+  weights=tryCatch(.get_new_weights(nrow, weights_bmr, tol_rel_sd=tol_rel_sd),
+                                    error=function(e) {
+                                      warning(paste("Resimulating new draw from posterior becuase unable to find weights which achieve current sim from posterior.", e$message))
+                                      return(.get_new_weights(nrow, weights_bmr, tol_rel_sd=tol_rel_sd))
+                                    })
+  
+  ret=tboot(nrow=nrow,
+            weights=weights,
+            dataset=weights$X, #for now don't include extra columns
+            fillMissingAug=FALSE)
+  tmp=weights$mu
+  names(tmp)=names(weights_bmr$marginal)
+  attr(ret, "post_bmr")=tmp
+  return(ret)
+}
+
+.get_new_weights=function(nrow, weights_bmr, tol_rel_sd=.05) {
+  
   p=nrow(weights_bmr$Csqrt)
   z = weights_bmr$Csqrt %*% rnorm(p)
   u = pnorm(z)
   mu= mapply(function(u,marginal) as.numeric(quantile(marginal, probs = u)),
              u, weights_bmr$marginal)
   names(mu)=names(weights_bmr$marginal)
-
-  weights=suppressWarnings(tweights(weights_bmr$tweights$X, target=mu,
-                                    distance=weights_bmr$distance,
-                                    maxit = weights_bmr$maxit,
-                                    tol=weights_bmr$tol,
-                                    warningcut=weights_bmr$warningcut,
-                                    silent=TRUE,
-                                    Nindependent=weights_bmr$Nindependent))
   
+  
+  weights=suppressWarnings(tweights(weights_bmr$tweights$X, target=mu,
+                                             distance=weights_bmr$distance,
+                                             maxit = weights_bmr$maxit,
+                                             tol=weights_bmr$tol,
+                                             warningcut=weights_bmr$warningcut,
+                                             silent=TRUE,
+                                             Nindependent=weights_bmr$Nindependent))
   if(max(abs(weights$achievedMean - mu)/weights_bmr$marginal_sd) > tol_rel_sd){
     stop("Unable to simulate accurately.")
   }
   
-  ret=tboot(nrow=nrow,
-            weights=weights,
-            dataset=weights$X, #for now don't include extra columns
-            fillMissingAug=FALSE)
-  tmp=mu
-  names(tmp)=names(weights_bmr$marginal)
-  attr(ret, "post_bmr")=tmp
-  return(ret)
+  weights$mu=mu
+  return(weights)
 }
