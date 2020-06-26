@@ -234,6 +234,7 @@ tweights <-function(
 
     if(max(abs(dif))<tol)
       break
+    
     lambda_proposal= lambda_n + .solveTrap(negF_deriv, dif)
     xlambda_proposal=x_star %*% lambda_proposal 
     boundary=xlambda_n/(xlambda_n-xlambda_proposal)
@@ -259,17 +260,47 @@ tweights <-function(
 
 
 
-.solveTrap=function(A,b) {
+.renormKLqp=function(lambda_n, x_star,lambda_nnorm_direction) {
+  lambda_n=lambda_n + v0*alpha
+  xlambda_n=x_star %*% lambda_n 
+  mx=max(xlambda_n)
+  pi_n=as.vector(exp(xlambda_n -mx))
+  log_cur_total_prob = log(sum(pi_n)) + mx
+  lambda_n = lambda_n -  lambda_nnorm_direction * log_cur_total_prob
+  return(lambda_n)
+}
+
+.line_searchKLqp=function(x_star,target_star,lambda_nnorm_direction, lambda_n, v0) {
+  g=function(alpha) {
+    lambda_n=lambda_n + v0*alpha
+    xlambda_n=x_star %*% lambda_n 
+    mx=max(xlambda_n)
+    pi_n=as.vector(exp(xlambda_n -mx))
+    cur_total_prob = sum(pi_n)
+    pi_n = pi_n/cur_total_prob
+    dif=as.vector(pi_n %*% x_star -target_star)
+    return(dif %*% dif)
+  }
+  opt=optimise(g,interval=c(0,1))
+  alpha=opt$minimum
+  ret=lambda_n + v0*alpha
+  return(ret)#.renormKLqp(target_star + v0*alpha,  x_star,lambda_nnorm_direction))
+}
+
+.solveTrap = function(A,b) {
   tryCatch(solve(A,b), error = function(e) {
-    warning("Matrix was not invertible. Adding a small constant to the diagonal.\n")
+    warning("Matrix was not invertible. Using pseudo inverse.\n")
     e=eigen(A, symmetric=TRUE)
-    const = max(e$values)*.001
-    return(e$vectors %*% (diag(1/(e$values+const)) %*% (t(e$vector) %*% b)))
+    eval= e$values
+    eval[eval < (max(eval)*1E-5) ]=1
+    return(e$vectors %*% (diag(1/eval) %*% (t(e$vector) %*% b)))
   })
 }
 
 
-.newtonKLqp = function(A, b, maxit, tol) {
+
+
+.newtonKLqp=function(A, b, maxit, tol, maxrestart=2) {
   
   #Parameters for transformed problem to (hopefuly) make the optimization numerically stable
   s=svd(A)
@@ -278,22 +309,53 @@ tweights <-function(
   vdinv = s$v %*% diag(1/s$d)
   x_star = (A %*% vdinv )
   target_star =   as.vector(t(vdinv) %*% b)
+  
+  #setup for renormalization
+  lambda_nnorm_direction =  s$d * s$v[1,]
+  lambda_nnorm_direction = lambda_nnorm_direction/mean(x_star %*% lambda_nnorm_direction)
+  
+  #start
   lambda_n =as.vector( t(s$v %*% diag(s$d)) %*% c(-log(nrow(A)),rep(0, length(target_star)-1)) )
+  restart=0
   
   for(steps in 1:maxit) {
-    xlambda_n=x_star %*% lambda_n      
-    pi_n=as.vector(exp(xlambda_n))
-    tmp=x_star * (pi_n)
-    F_deriv=  crossprod(tmp, x_star)
-    dif=as.vector(pi_n %*% x_star -target_star)
-    if(any(is.na(dif)))
-      stop("Error in optimization step. Target may be to far from data.")
-    if(max(abs(dif))<tol)
-      break
-    lambda_n = lambda_n - .solveTrap(F_deriv, dif)
+    xlambda_n=x_star %*% lambda_n
+    mx=max(xlambda_n) # suptract mx below throughout to avoid overflow
+    pi_n_expmx=as.vector(exp(xlambda_n-mx))
+    F_deriv_expmx=  crossprod(x_star * pi_n_expmx, x_star)
+    m_expmx=pi_n_expmx %*% x_star
+    #dif=as.vector(m-target_star)
+    dif_expmx=as.vector(m_expmx-target_star*exp(-mx))
+    if(any(is.na(dif_expmx))) {      #restart due to overflow (does not count as restart - shouldnt happen)
+      lambda_n=.renormKLqp(rnorm(ncol(A)), x_star,lambda_nnorm_direction)    
+    } else if(log(max(abs(dif_expmx)))< log(tol) -mx) { # We are done - yeah!
+      break 
+    } else { #Find next step direction and perform linesearch to avoid overstepping
+      v0= - .solveTrap(F_deriv_expmx, dif_expmx)
+      lambda_n=.line_searchKLqp(x_star,target_star,lambda_nnorm_direction, lambda_n, v0)
+    }
+    
+    
+    if(restart<maxrestart & (steps %% 100)==0 ) {
+      probs=sort(c(.1,.2), decreasing = TRUE)
+      probsCumsum=cumsum(probs)
+      normconst=probsCumsum[length(probsCumsum)]
+      cuti=max(which(probsCumsum<.9*normconst))
+      if(cuti<=max(2, round(.1*nrow(A)))) { #90% of probability belongs to 10% of samples
+        cutoff =probs[cuti]
+        flg=pi_n_expmx>=cutoff
+        lambda_n=tryCatch(.newtonKLqp(A[!flg,,drop=FALSE], b, maxit=maxit, tol=tol, maxrestart=0)$lambda_n, 
+                          error = function(e) .renormKLqp(rnorm(ncol(A)), x_star,lambda_nnorm_direction)    
+        )
+        lambda_n=.renormKLqp(lambda_n, x_star, lambda_nnorm_direction)   
+        cat(lambda_n,"\n")
+        restart=restart+1
+      } 
+    }
   }
-  return(list(steps=steps, weights=pi_n))
-} 
+  return(list(steps=steps, lambda_n=lambda_n, weights=pi_n_expmx/sum(pi_n_expmx)))
+}
+
 
 
 .print_ret = function(originalDataset,weights, dataset, target, originalTarget, 
