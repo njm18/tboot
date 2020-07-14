@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Getting Started with the Tilted Bootstrap • tboot</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started with the Tilted Bootstrap">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -70,7 +71,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/nmorris-lilly/tboot">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,13 +84,14 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Getting Started with the Tilted Bootstrap</h1>
                         <h4 class="author">Nathan Morris, Will Landau</h4>
             
-            <h4 class="date">2020-06-16</h4>
+            <h4 class="date">2020-07-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nmorris-lilly/tboot/blob/master/vignettes/tboot.Rmd"><code>vignettes/tboot.Rmd</code></a></small>
       <div class="hidden name"><code>tboot.Rmd</code></div>
@@ -108,15 +110,15 @@
 <h1 class="hasAnchor">
 <a href="#a-simulated-example-dataset" class="anchor"></a>A simulated example dataset</h1>
 <p>As and example, we simulate the following simple dataset with some categorical, continuous and binary variables.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tboot)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2018</span>)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">color   &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sample">sample</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"brown"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>), <span class="dv">300</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">quant1  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">300</span>) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(color<span class="op">==</span><span class="st">"red"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">quant2  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">300</span>) <span class="op">+</span><span class="st"> </span>quant1<span class="op">*</span>.<span class="dv">5</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">bin1    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(quant1<span class="op">+</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">300</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">bin2    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(quant2<span class="op">+</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">300</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">simData &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(color, quant1, quant2, bin1, bin2)</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(simData)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tboot)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">2018</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">color   &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/sample.html">sample</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"brown"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>), <span class="dv">300</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">quant1  &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">300</span>) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(color<span class="op">==</span><span class="st">"red"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">quant2  &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">300</span>) <span class="op">+</span><span class="st"> </span>quant1<span class="op">*</span>.<span class="dv">5</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">bin1    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(quant1<span class="op">+</span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">300</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">bin2    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(quant2<span class="op">+</span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">300</span>) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">simData &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(color, quant1, quant2, bin1, bin2)</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(simData)</a></code></pre></div>
 <pre><code>##   color      quant1     quant2 bin1 bin2
 ## 1  blue -1.57511390 -0.3168474    0    0
 ## 2  blue  1.06242723  0.8183064    0    0
@@ -125,11 +127,11 @@
 ## 5 green  0.26670057 -0.2256420    1    0
 ## 6 brown  1.04736902  0.0748104    1    0</code></pre>
 <p>To use the ‘tboot’ package we must first code the variables as numeric matrix. To do this, we code the ‘color’ variable above with two dummy variables.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">dataset=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">as.matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="dt">colorBlue=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(simData<span class="op">$</span>color<span class="op">==</span><span class="st">"blue"</span>,<span class="dv">1</span>,<span class="dv">0</span>),</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">    <span class="dt">colorBrown=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(simData<span class="op">$</span>color<span class="op">==</span><span class="st">"brown"</span>,<span class="dv">1</span>,<span class="dv">0</span>),</a>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">dataset=<span class="kw"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="dt">colorBlue=</span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(simData<span class="op">$</span>color<span class="op">==</span><span class="st">"blue"</span>,<span class="dv">1</span>,<span class="dv">0</span>),</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">    <span class="dt">colorBrown=</span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(simData<span class="op">$</span>color<span class="op">==</span><span class="st">"brown"</span>,<span class="dv">1</span>,<span class="dv">0</span>),</a>
 <a class="sourceLine" id="cb3-4" data-line-number="4">    simData[,<span class="op">-</span><span class="dv">1</span>]))</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">colMeans</a></span>(dataset)</a></code></pre></div>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colMeans</a></span>(dataset)</a></code></pre></div>
 <pre><code>##   colorBlue  colorBrown      quant1      quant2        bin1        bin2 
 ##  0.32000000  0.33333333 -0.06706536 -0.06444624  0.22333333  0.24333333</code></pre>
 </div>
@@ -137,7 +139,7 @@
 <h1 class="hasAnchor">
 <a href="#example-1-constraining-the-mean-for-all-variables-in-the-data" class="anchor"></a>Example 1: Constraining the mean for all variables in the data</h1>
 <p>Suppose that, in the bootstrapped dataset, we want all the column means to be around 0.4.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">target &lt;-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">colorBlue=</span><span class="fl">0.4</span>,</a>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">target &lt;-<span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">colorBlue=</span><span class="fl">0.4</span>,</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">             <span class="dt">colorBrown=</span><span class="fl">0.4</span>,</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">             <span class="dt">quant1=</span><span class="fl">0.4</span>,</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">             <span class="dt">quant2=</span><span class="fl">0.4</span>,</a>
@@ -156,12 +158,12 @@
 <p>Next, we bootstrap a very large sample using the weights.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">boot &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tboot.html">tboot</a></span>(<span class="dt">weights =</span> weights, <span class="dt">nrow =</span> <span class="fl">1e5</span>)</a></code></pre></div>
 <p>The column means are close to the target even though all the rows came from the original data.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">colMeans</a></span>(boot)</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colMeans</a></span>(boot)</a></code></pre></div>
 <pre><code>##  colorBlue colorBrown     quant1     quant2       bin1       bin2 
 ##  0.4020400  0.4003600  0.3968286  0.3986242  0.3984800  0.4004900</code></pre>
 <p>The weights for each sample will now differ:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/hist">hist</a></span>(weights<span class="op">$</span>weights, <span class="dt">breaks=</span><span class="dv">25</span>)</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/abline">abline</a></span>(<span class="dt">v=</span><span class="dv">1</span><span class="op">/</span><span class="dv">300</span>,<span class="dt">col=</span><span class="st">"red"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/hist.html">hist</a></span>(weights<span class="op">$</span>weights, <span class="dt">breaks=</span><span class="dv">25</span>)</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span>(<span class="dt">v=</span><span class="dv">1</span><span class="op">/</span><span class="dv">300</span>,<span class="dt">col=</span><span class="st">"red"</span>)</a></code></pre></div>
 <p><img src="tboot_files/figure-html/hist-1.png" width="700"></p>
 <p>The red line in the histogram above represents the probability for uniform resampling. We recommend against using the resampling methods implemented in this package when the weight of any one sample is too high. In some cases, this may be improved by transforming variables or removing/Winsorizing outlier samples. Also, using a different distance measure as described below in the section on Methodology may help. In general, if the target value is far from the observed mean of your data, it is likely that a handful of samples will be highly weighted.</p>
 </div>
@@ -170,7 +172,7 @@
 <a href="#example-2-constraining-the-mean-for-a-subset-of-the-variables" class="anchor"></a>Example 2: Constraining the mean for a subset of the variables</h1>
 <p>Suppose we wish to constrain the mean for only as subset of the variables. For example, we may wish to constrain only the variables ‘quant2’ and ‘bin1’ to have a mean value of 0.4 and 0.5 respectively. We would determine the weights as follows:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">weights &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tweights.html">tweights</a></span>(<span class="dt">dataset =</span> dataset, </a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">                    <span class="dt">target =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">quant1=</span><span class="fl">0.5</span>, <span class="dt">quant2=</span><span class="fl">0.5</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb12-2" data-line-number="2">                    <span class="dt">target =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">quant1=</span><span class="fl">0.5</span>, <span class="dt">quant2=</span><span class="fl">0.5</span>))</a></code></pre></div>
 <pre><code>## ----------------------------------------------------------------
 ## Optimization was successful. The weights have a sampleing
 ## distribution with means close to the attemted target:
@@ -181,8 +183,8 @@
 ## ----------------------------------------------------------------</code></pre>
 <p>We can now bootstrap from the entire dataset as like this:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">boot &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tboot.html">tboot</a></span>(weights, <span class="dt">nrow =</span> <span class="fl">1e5</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="st">"dataset mean"</span>    =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">colMeans</a></span>(dataset),</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">      <span class="st">"tbootstrap mean"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">colMeans</a></span>(boot))</a></code></pre></div>
+<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="st">"dataset mean"</span>    =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colMeans</a></span>(dataset),</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">      <span class="st">"tbootstrap mean"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colMeans</a></span>(boot))</a></code></pre></div>
 <pre><code>##                 colorBlue colorBrown      quant1      quant2      bin1
 ## dataset mean       0.3200  0.3333333 -0.06706536 -0.06444624 0.2233333
 ## tbootstrap mean    0.2765  0.3531700  0.49919188  0.49463529 0.3444700
@@ -191,41 +193,38 @@
 ## tbootstrap mean 0.3835500</code></pre>
 <p>As may be seen, by changing the target mean of ‘quant2’ and ‘bin1’ we have also significantly changed the mean of other variables such as ‘quant1’ and ‘bin2.’ In many cases this is exactly what we would want to do, but it may occasionally be problematic. For example, if the one of the variables is a baseline variable in a clinical trial. In this case, it is recommended that the user constrain the mean of the baseline covariate to be the same as in the observed data.</p>
 <p>The actual weights for each sample may be extracted as ‘weights$weigths.’ As an instructive look at what the weights represent here is a graph of the weights. The red point marks the position of the new assumed mean while the black point marks the position of the data sample mean.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">pltdta=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(dataset[,<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"quant1"</span>, <span class="st">"quant2"</span>)], <span class="dt">weights=</span>weights<span class="op">$</span>weights)</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a></code></pre></div>
-<pre><code>## Registered S3 methods overwritten by 'ggplot2':
-##   method         from 
-##   [.quosures     rlang
-##   c.quosures     rlang
-##   print.quosures rlang</code></pre>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(pltdta, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span>quant1, <span class="dt">y=</span>quant2, <span class="dt">color=</span>weights)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span>.<span class="dv">6</span>, <span class="dt">y=</span>.<span class="dv">6</span>), <span class="dt">shape =</span> <span class="dv">3</span>, <span class="dt">colour =</span> <span class="st">"red"</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stroke =</span> <span class="dv">3</span>)<span class="op">+</span></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(pltdta<span class="op">$</span>quant1), <span class="dt">y=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/mean">mean</a></span>(pltdta<span class="op">$</span>quant2)),</a>
-<a class="sourceLine" id="cb18-4" data-line-number="4">             <span class="dt">shape =</span> <span class="dv">3</span>, <span class="dt">colour =</span> <span class="st">"black"</span>,  <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stroke =</span> <span class="dv">3</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">pltdta=<span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(dataset[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"quant1"</span>, <span class="st">"quant2"</span>)], <span class="dt">weights=</span>weights<span class="op">$</span>weights)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(pltdta, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span>quant1, <span class="dt">y=</span>quant2, <span class="dt">color=</span>weights)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span>.<span class="dv">6</span>, <span class="dt">y=</span>.<span class="dv">6</span>), <span class="dt">shape =</span> <span class="dv">3</span>, <span class="dt">colour =</span> <span class="st">"red"</span>, <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stroke =</span> <span class="dv">3</span>)<span class="op">+</span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x=</span><span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(pltdta<span class="op">$</span>quant1), <span class="dt">y=</span><span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(pltdta<span class="op">$</span>quant2)),</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6">             <span class="dt">shape =</span> <span class="dv">3</span>, <span class="dt">colour =</span> <span class="st">"black"</span>,  <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">stroke =</span> <span class="dv">3</span>)</a></code></pre></div>
+<pre><code>## Warning: Use of `pltdta$quant1` is discouraged. Use `quant1` instead.</code></pre>
+<pre><code>## Warning: Use of `pltdta$quant2` is discouraged. Use `quant2` instead.</code></pre>
 <p><img src="tboot_files/figure-html/boot21-1.png" width="700"></p>
 </div>
 <div id="example-3-constraining-the-mean-and-variance-for-a-variable" class="section level1">
 <h1 class="hasAnchor">
 <a href="#example-3-constraining-the-mean-and-variance-for-a-variable" class="anchor"></a>Example 3: Constraining the mean and variance for a variable</h1>
 <p>The variance can also be constrained by creating a variable with the second moment. For example, suppose we wanted to constrain the variance of quant1 to 0.75 and the mean to be 0.5 . We could do as follows:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">dataset=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(dataset, <span class="dt">quant1_2=</span> (dataset[,<span class="st">"quant1"</span>]<span class="op">-</span><span class="fl">0.5</span>)<span class="op">^</span><span class="dv">2</span>)</a>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">dataset=<span class="kw"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(dataset, <span class="dt">quant1_2=</span> (dataset[,<span class="st">"quant1"</span>]<span class="op">-</span><span class="fl">0.5</span>)<span class="op">^</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb19-2" data-line-number="2">weights &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tweights.html">tweights</a></span>(<span class="dt">dataset =</span> dataset, </a>
-<a class="sourceLine" id="cb19-3" data-line-number="3">                    <span class="dt">target =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">quant1=</span><span class="fl">0.5</span>, <span class="dt">quant1_2=</span><span class="fl">0.75</span>),)</a></code></pre></div>
+<a class="sourceLine" id="cb19-3" data-line-number="3">                    <span class="dt">target =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">quant1=</span><span class="fl">0.5</span>, <span class="dt">quant1_2=</span><span class="fl">0.75</span>),)</a></code></pre></div>
 <pre><code>## ----------------------------------------------------------------
 ## Optimization was successful. The weights have a sampleing
 ## distribution with means close to the attemted target:
 ##               quant1 quant1_2
 ## Achieved Mean    0.5     0.75
 ## Target Mean      0.5     0.75
-## Maximum weight was:  0.006857805 
+## Maximum weight was:  0.006857806 
 ## ----------------------------------------------------------------</code></pre>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">boot &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tboot.html">tboot</a></span>(weights, <span class="dt">nrow =</span> <span class="fl">1e5</span>)</a>
-<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/cor">var</a></span>(dataset[,<span class="st">"quant1"</span>])</a></code></pre></div>
+<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(dataset[,<span class="st">"quant1"</span>])</a></code></pre></div>
 <pre><code>## [1] 1.097222</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/cor">var</a></span>(boot[,<span class="st">"quant1"</span>])</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/cor.html">var</a></span>(boot[,<span class="st">"quant1"</span>])</a></code></pre></div>
 <pre><code>## [1] 0.7537766</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="st">"dataset mean"</span>    =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">colMeans</a></span>(dataset),</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2">      <span class="st">"tbootstrap mean"</span> =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/colSums">colMeans</a></span>(boot))</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="st">"dataset mean"</span>    =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colMeans</a></span>(dataset),</a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">      <span class="st">"tbootstrap mean"</span> =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colMeans</a></span>(boot))</a></code></pre></div>
 <pre><code>##                 colorBlue colorBrown      quant1      quant2      bin1
 ## dataset mean       0.3200  0.3333333 -0.06706536 -0.06444624 0.2233333
 ## tbootstrap mean    0.2884  0.3573000  0.50772144  0.19314284 0.3379400
@@ -330,27 +329,27 @@ q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
 <h2 class="hasAnchor">
 <a href="#augmented-sampling-to-improved-stability" class="anchor"></a>Augmented Sampling to Improved Stability</h2>
 <p>In many cases, the problems described above can be avoided by the use of the ‘Nindependent’ option in the ‘tweights’ function. We suggest that typically, if this option is used, the user set Nindependent=1. This means that one one additional “special” sample is assumed to exist in the original data. If ‘tboot’ draws this special sample, it will proceed to bootstrap each variable independently so that the variables are independent for that patient. The weights for each independent variable bootstrap are set so that (if possible) the “special” sample would average to the target. In effect, the Nindependent option makes the correlation structure slightly less dependent. In exchange for the small bias created, the user will be able to better achieve a target even when the dataset available is small or ill-conditioned. This method is used for the Bayesian marginal reconstruction method as it helps eliminate errors in corners of the parameters space that do not fit well with the data but still occasionally occur. In these cases, the independent sample may occur frequently, so the simulation defaults towards greater independence when the data is not consistent with the parameter. Here is an example of using the Nindependent option where correlation is slightly smaller with augmentation:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">x1=<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">1000</span>)</a>
-<a class="sourceLine" id="cb27-2" data-line-number="2">x2=<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">1000</span>)<span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/MathFun">sqrt</a></span>(.<span class="dv">1</span>) <span class="op">+</span><span class="st"> </span>x1<span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/MathFun">sqrt</a></span>(.<span class="dv">9</span>)</a>
-<a class="sourceLine" id="cb27-3" data-line-number="3">dataset2=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">x1=</span>x1, <span class="dt">x2=</span>x2)</a>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">x1=<span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb27-2" data-line-number="2">x2=<span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">1000</span>)<span class="op">*</span><span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>(.<span class="dv">1</span>) <span class="op">+</span><span class="st"> </span>x1<span class="op">*</span><span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>(.<span class="dv">9</span>)</a>
+<a class="sourceLine" id="cb27-3" data-line-number="3">dataset2=<span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">x1=</span>x1, <span class="dt">x2=</span>x2)</a>
 <a class="sourceLine" id="cb27-4" data-line-number="4"></a>
 <a class="sourceLine" id="cb27-5" data-line-number="5">weights_no_augmentation &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tweights.html">tweights</a></span>(<span class="dt">dataset =</span> dataset2, </a>
-<a class="sourceLine" id="cb27-6" data-line-number="6">                    <span class="dt">target =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">x1=</span><span class="fl">0.2</span>, <span class="dt">x2=</span><span class="op">-</span><span class="fl">0.2</span>))</a></code></pre></div>
+<a class="sourceLine" id="cb27-6" data-line-number="6">                    <span class="dt">target =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">x1=</span><span class="fl">0.2</span>, <span class="dt">x2=</span><span class="op">-</span><span class="fl">0.2</span>))</a></code></pre></div>
 <pre><code>## ----------------------------------------------------------------
 ## Optimization was successful. The weights have a sampleing
 ## distribution with means close to the attemted target:
 ##                      x1         x2
-## Achieved Mean 0.1999998 -0.2000002
+## Achieved Mean 0.1999999 -0.2000001
 ## Target Mean   0.2000000 -0.2000000
 ## Maximum weight was:  0.04102889 
 ## ----------------------------------------------------------------</code></pre>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">weights_augmentation &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tweights.html">tweights</a></span>(<span class="dt">dataset =</span> dataset2, </a>
-<a class="sourceLine" id="cb29-2" data-line-number="2">                    <span class="dt">target =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dt">x1=</span><span class="fl">0.2</span>, <span class="dt">x2=</span><span class="op">-</span><span class="fl">0.2</span>), <span class="dt">Nindependent=</span><span class="dv">1</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb29-2" data-line-number="2">                    <span class="dt">target =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">x1=</span><span class="fl">0.2</span>, <span class="dt">x2=</span><span class="op">-</span><span class="fl">0.2</span>), <span class="dt">Nindependent=</span><span class="dv">1</span>)</a></code></pre></div>
 <pre><code>## ----------------------------------------------------------------
 ## Optimization was successful. The weights have a sampleing
 ## distribution with means close to the attemted target:
 ##                      x1         x2
-## Achieved Mean 0.1999998 -0.2000001
+## Achieved Mean 0.1999999 -0.2000001
 ## Target Mean   0.2000000 -0.2000000
 ## Maximum weight was:  0.0409359 
 ## Data augmented with 1 sample(s) with independent variables. 
@@ -358,11 +357,11 @@ q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
 ## ----------------------------------------------------------------</code></pre>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">boot_no_augmentation &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tboot.html">tboot</a></span>(weights_no_augmentation, <span class="dt">nrow =</span> <span class="fl">1e5</span>)</a>
 <a class="sourceLine" id="cb31-2" data-line-number="2">boot_augmentation &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tboot.html">tboot</a></span>(weights_augmentation, <span class="dt">nrow =</span> <span class="fl">1e5</span>)</a>
-<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/cor">cor</a></span>(boot_no_augmentation)</a></code></pre></div>
+<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span>(boot_no_augmentation)</a></code></pre></div>
 <pre><code>##           x1        x2
 ## x1 1.0000000 0.9400113
 ## x2 0.9400113 1.0000000</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/cor">cor</a></span>(boot_augmentation)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span>(boot_augmentation)</a></code></pre></div>
 <pre><code>##           x1        x2
 ## x1 1.0000000 0.9376946
 ## x2 0.9376946 1.0000000</code></pre>
@@ -380,6 +379,7 @@ q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -412,17 +412,20 @@ q^*=\underset{q^* \in S^*}{\operatorname{argmin}} {(X'q - y)'W(X'q - y)}
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Nathan Morris, William Michael Landau.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

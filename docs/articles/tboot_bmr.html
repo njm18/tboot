@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gettings Started with Bayesian Marginal Reconstruction • tboot</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Gettings Started with Bayesian Marginal Reconstruction">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -70,7 +71,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/nmorris-lilly/tboot">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,13 +84,14 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Gettings Started with Bayesian Marginal Reconstruction</h1>
                         <h4 class="author">Nathan Morris</h4>
             
-            <h4 class="date">2020-06-16</h4>
+            <h4 class="date">2020-07-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/nmorris-lilly/tboot/blob/master/vignettes/tboot_bmr.Rmd"><code>vignettes/tboot_bmr.Rmd</code></a></small>
       <div class="hidden name"><code>tboot_bmr.Rmd</code></div>
@@ -107,13 +109,13 @@
 <h1 class="hasAnchor">
 <a href="#a-simulated-example-dataset" class="anchor"></a>A simulated example dataset</h1>
 <p>As and example, we simulate the following simple dataset with a continuous and two binary variables.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tboot)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">2020</span>)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">quant1  &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">200</span>) <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">bin1    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>( (.<span class="dv">5</span><span class="op">*</span>quant1 <span class="op">+</span><span class="st"> </span><span class="fl">.5</span><span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">200</span>)) <span class="op">&gt;</span><span class="st"> </span><span class="fl">.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">bin2    &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>( (.<span class="dv">5</span><span class="op">*</span>quant1 <span class="op">+</span><span class="st"> </span><span class="fl">.5</span><span class="op">*</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">200</span>)) <span class="op">&gt;</span><span class="st"> </span><span class="fl">.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">simData &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(quant1, bin1, bin2)</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(simData)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tboot)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">2020</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">quant1  &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">200</span>) <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">bin1    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>( (.<span class="dv">5</span><span class="op">*</span>quant1 <span class="op">+</span><span class="st"> </span><span class="fl">.5</span><span class="op">*</span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">200</span>)) <span class="op">&gt;</span><span class="st"> </span><span class="fl">.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">bin2    &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>( (.<span class="dv">5</span><span class="op">*</span>quant1 <span class="op">+</span><span class="st"> </span><span class="fl">.5</span><span class="op">*</span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">200</span>)) <span class="op">&gt;</span><span class="st"> </span><span class="fl">.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">simData &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(quant1, bin1, bin2)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(simData)</a></code></pre></div>
 <pre><code>##        quant1 bin1 bin2
 ## 1  1.37697212    0    0
 ## 2  1.30154837    1    1
@@ -126,12 +128,12 @@
 <h1 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h1>
 <p>First, we create a list with simulations from the marginal distribution of each variable for two different treatments (active treatment and placebo).</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">marginal_active &lt;-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">quant1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">5000</span>, <span class="dt">mean=</span>.<span class="dv">5</span>, <span class="dt">sd=</span>.<span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">                         <span class="dt">bin1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Beta">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">50</span>,<span class="dt">shape2=</span><span class="dv">50</span>),</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">                         <span class="dt">bin2=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Beta">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">60</span>,<span class="dt">shape2=</span><span class="dv">40</span>))</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">marginal_pbo &lt;-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">quant1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(<span class="dv">5000</span>, <span class="dt">mean=</span>.<span class="dv">2</span>, <span class="dt">sd=</span>.<span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">                      <span class="dt">bin1=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Beta">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">20</span>,<span class="dt">shape2=</span><span class="dv">80</span>),</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">                      <span class="dt">bin2=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Beta">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">30</span>,<span class="dt">shape2=</span><span class="dv">70</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">marginal_active &lt;-<span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">quant1=</span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">5000</span>, <span class="dt">mean=</span>.<span class="dv">5</span>, <span class="dt">sd=</span>.<span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">                         <span class="dt">bin1=</span><span class="kw"><a href="https://rdrr.io/r/stats/Beta.html">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">50</span>,<span class="dt">shape2=</span><span class="dv">50</span>),</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">                         <span class="dt">bin2=</span><span class="kw"><a href="https://rdrr.io/r/stats/Beta.html">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">60</span>,<span class="dt">shape2=</span><span class="dv">40</span>))</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">marginal_pbo &lt;-<span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">quant1=</span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(<span class="dv">5000</span>, <span class="dt">mean=</span>.<span class="dv">2</span>, <span class="dt">sd=</span>.<span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">                      <span class="dt">bin1=</span><span class="kw"><a href="https://rdrr.io/r/stats/Beta.html">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">20</span>,<span class="dt">shape2=</span><span class="dv">80</span>),</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">                      <span class="dt">bin2=</span><span class="kw"><a href="https://rdrr.io/r/stats/Beta.html">rbeta</a></span>(<span class="dv">5000</span>, <span class="dt">shape1 =</span> <span class="dv">30</span>,<span class="dt">shape2=</span><span class="dv">70</span>))</a></code></pre></div>
 <p>We next need to use ‘tweights_bmr’ to calculate the correlation matrix from the data and get set for marginal reconstruction. The calculation uses a call to the ‘tweights’ function.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">bmr_active &lt;-<span class="st"> </span><span class="kw"><a href="../reference/tweights_bmr.html">tweights_bmr</a></span>(<span class="dt">dataset =</span> simData, <span class="dt">marginal =</span> marginal_active)</a></code></pre></div>
 <pre><code>## ----------------------------------------------------------------
@@ -156,9 +158,9 @@
 ## The final weight of the indpendent sample(s) was:  0.006562899 
 ## ----------------------------------------------------------------</code></pre>
 <p>To simulate from the posterior we use ‘post_bmr’:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">samples &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">trt=</span><span class="st">"active"</span>, <span class="kw"><a href="../reference/post_bmr.html">post_bmr</a></span>(<span class="dt">nsims=</span><span class="fl">1e3</span>, bmr_active)),</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">                 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">trt=</span><span class="st">"pbo"</span>, <span class="kw"><a href="../reference/post_bmr.html">post_bmr</a></span>(<span class="dt">nsims=</span><span class="fl">1e3</span>, bmr_pbo)))</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(samples)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">samples &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">trt=</span><span class="st">"active"</span>, <span class="kw"><a href="../reference/post_bmr.html">post_bmr</a></span>(<span class="dt">nsims=</span><span class="fl">1e3</span>, bmr_active)),</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">                 <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">trt=</span><span class="st">"pbo"</span>, <span class="kw"><a href="../reference/post_bmr.html">post_bmr</a></span>(<span class="dt">nsims=</span><span class="fl">1e3</span>, bmr_pbo)))</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(samples)</a></code></pre></div>
 <pre><code>##      trt    quant1      bin1      bin2
 ## 1 active 0.4909751 0.4588719 0.5872279
 ## 2 active 0.1522832 0.3929919 0.4903635
@@ -167,33 +169,28 @@
 ## 5 active 0.4904320 0.5739046 0.5425915
 ## 6 active 0.6137868 0.5463136 0.6449981</code></pre>
 <p>The posterior samples show a correlations structure.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/graphics/topics/pairs">pairs</a></span>(samples[,<span class="op">-</span><span class="dv">1</span>], <span class="dt">col=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(samples<span class="op">==</span><span class="st">"active"</span>,<span class="st">"red"</span>,<span class="st">"blue"</span>), <span class="dt">pch=</span><span class="st">'.'</span>, <span class="dt">cex=</span>.<span class="dv">5</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/graphics/pairs.html">pairs</a></span>(samples[,<span class="op">-</span><span class="dv">1</span>], <span class="dt">col=</span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(samples<span class="op">==</span><span class="st">"active"</span>,<span class="st">"red"</span>,<span class="st">"blue"</span>), <span class="dt">pch=</span><span class="st">'.'</span>, <span class="dt">cex=</span>.<span class="dv">5</span>)</a></code></pre></div>
 <p><img src="tboot_bmr_files/figure-html/pairsgraph-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>Marginally the posterior samples are equivalent to the simulations used as input (i.e., in the ‘marginal’ parameter).</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a></code></pre></div>
-<pre><code>## Registered S3 methods overwritten by 'ggplot2':
-##   method         from 
-##   [.quosures     rlang
-##   c.quosures     rlang
-##   print.quosures rlang</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">pltdta=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(rbind, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"quant1"</span>,<span class="st">"bin1"</span>, <span class="st">"bin2"</span>),</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">                             <span class="cf">function</span>(nm) {</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">                               <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">rbind</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">type=</span><span class="st">"BMR"</span>, <span class="dt">var=</span>nm, <span class="dt">trt=</span>samples<span class="op">$</span>trt,</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">                                                <span class="dt">val=</span>samples[[nm]]), </a>
-<a class="sourceLine" id="cb13-5" data-line-number="5">                                     <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">type=</span><span class="st">"marginal"</span>, <span class="dt">var=</span>nm,</a>
-<a class="sourceLine" id="cb13-6" data-line-number="6">                                                <span class="dt">trt=</span><span class="st">"active"</span>, </a>
-<a class="sourceLine" id="cb13-7" data-line-number="7">                                                <span class="dt">val=</span>marginal_active[[nm]]),</a>
-<a class="sourceLine" id="cb13-8" data-line-number="8">                                     <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">type=</span><span class="st">"marginal"</span>, <span class="dt">var=</span>nm, </a>
-<a class="sourceLine" id="cb13-9" data-line-number="9">                                                <span class="dt">trt=</span><span class="st">"pbo"</span>, </a>
-<a class="sourceLine" id="cb13-10" data-line-number="10">                                                <span class="dt">val=</span>marginal_pbo[[nm]]))</a>
-<a class="sourceLine" id="cb13-11" data-line-number="11">                             }))</a>
-<a class="sourceLine" id="cb13-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb13-13" data-line-number="13">  <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(pltdta, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">fill=</span>type, <span class="dt">x=</span>val)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html">geom_density</a></span>(<span class="dt">alpha=</span>.<span class="dv">3</span>) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span>(var<span class="op">~</span>trt, <span class="dt">scales =</span> <span class="st">"free"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">pltdta=<span class="kw"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span>(rbind, <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"quant1"</span>,<span class="st">"bin1"</span>, <span class="st">"bin2"</span>),</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">                             <span class="cf">function</span>(nm) {</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">                               <span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">type=</span><span class="st">"BMR"</span>, <span class="dt">var=</span>nm, <span class="dt">trt=</span>samples<span class="op">$</span>trt,</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">                                                <span class="dt">val=</span>samples[[nm]]), </a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">                                     <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">type=</span><span class="st">"marginal"</span>, <span class="dt">var=</span>nm,</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7">                                                <span class="dt">trt=</span><span class="st">"active"</span>, </a>
+<a class="sourceLine" id="cb11-8" data-line-number="8">                                                <span class="dt">val=</span>marginal_active[[nm]]),</a>
+<a class="sourceLine" id="cb11-9" data-line-number="9">                                     <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">type=</span><span class="st">"marginal"</span>, <span class="dt">var=</span>nm, </a>
+<a class="sourceLine" id="cb11-10" data-line-number="10">                                                <span class="dt">trt=</span><span class="st">"pbo"</span>, </a>
+<a class="sourceLine" id="cb11-11" data-line-number="11">                                                <span class="dt">val=</span>marginal_pbo[[nm]]))</a>
+<a class="sourceLine" id="cb11-12" data-line-number="12">                             }))</a>
+<a class="sourceLine" id="cb11-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb11-14" data-line-number="14">  <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(pltdta, <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">fill=</span>type, <span class="dt">x=</span>val)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html">geom_density</a></span>(<span class="dt">alpha=</span>.<span class="dv">3</span>) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html">facet_grid</a></span>(var<span class="op">~</span>trt, <span class="dt">scales =</span> <span class="st">"free"</span>)</a></code></pre></div>
 <p><img src="tboot_bmr_files/figure-html/marginal%20dist-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>To simulate a random trial dataset using the parameters from a single draw of ‘post_bmr’ we use the tboot_bmr function. For example to simulate 100 patients on active treatment:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">active_sample=<span class="kw"><a href="../reference/tboot_bmr.html">tboot_bmr</a></span>(<span class="dt">nrow=</span><span class="dv">100</span>, <span class="dt">weights_bmr=</span>bmr_active)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(active_sample)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">active_sample=<span class="kw"><a href="../reference/tboot_bmr.html">tboot_bmr</a></span>(<span class="dt">nrow=</span><span class="dv">100</span>, <span class="dt">weights_bmr=</span>bmr_active)</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(active_sample)</a></code></pre></div>
 <pre><code>##       quant1 bin1 bin2
 ## 1  0.3944395    1    1
 ## 2 -0.4321196    0    0
@@ -202,36 +199,36 @@
 ## 5 -0.1767540    0    0
 ## 6 -2.0566837    0    0</code></pre>
 <p>The underlying parameter mean for the simulation is an attribute:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(active_sample, <span class="st">"post_bmr"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(active_sample, <span class="st">"post_bmr"</span>)</a></code></pre></div>
 <pre><code>##    quant1      bin1      bin2 
 ## 0.5927736 0.4617252 0.5994379</code></pre>
 <p>A more interesting example would be to simulate and analyze trial data. For example:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co">#Manage any errors by assuming the pvalue failed to reach statistical</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="co">#significance (i.e. pvalue is 1) but keep track of such errors. </span></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3">errorTrackGlobal=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>()</a>
-<a class="sourceLine" id="cb18-4" data-line-number="4">manageError=<span class="cf">function</span>(expr)  {</a>
-<a class="sourceLine" id="cb18-5" data-line-number="5">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/conditions">tryCatch</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eval">eval</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/substitute">quote</a></span>(expr)), <span class="dt">error=</span><span class="cf">function</span>(e){</a>
-<a class="sourceLine" id="cb18-6" data-line-number="6">    errorTrackGlobal[[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(errorTrackGlobal)<span class="op">+</span><span class="dv">1</span>]] &lt;&lt;-<span class="st"> </span>e<span class="op">$</span>message</a>
-<a class="sourceLine" id="cb18-7" data-line-number="7">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb18-8" data-line-number="8">  }) </a>
-<a class="sourceLine" id="cb18-9" data-line-number="9">}</a>
-<a class="sourceLine" id="cb18-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb18-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb18-12" data-line-number="12"><span class="co">#create function to simulate and analyze one virtual trial</span></a>
-<a class="sourceLine" id="cb18-13" data-line-number="13">sim_and_analyze=<span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb18-14" data-line-number="14">  active_sample=<span class="kw"><a href="../reference/tboot_bmr.html">tboot_bmr</a></span>(<span class="dv">100</span>, bmr_active)</a>
-<a class="sourceLine" id="cb18-15" data-line-number="15">  pbo_sample=<span class="kw"><a href="../reference/tboot_bmr.html">tboot_bmr</a></span>(<span class="dv">100</span>, bmr_pbo)</a>
-<a class="sourceLine" id="cb18-16" data-line-number="16">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(</a>
-<a class="sourceLine" id="cb18-17" data-line-number="17">    <span class="dt">p_quant1=</span><span class="kw">manageError</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/t.test">t.test</a></span>(active_sample<span class="op">$</span>quant1,pbo_sample<span class="op">$</span>quant1)<span class="op">$</span>p.value),</a>
-<a class="sourceLine" id="cb18-18" data-line-number="18">    <span class="dt">p_bin1=</span><span class="kw">manageError</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/fisher.test">fisher.test</a></span>(active_sample<span class="op">$</span>bin1,pbo_sample<span class="op">$</span>bin1)<span class="op">$</span>p.value),</a>
-<a class="sourceLine" id="cb18-19" data-line-number="19">    <span class="dt">p_bin2=</span><span class="kw">manageError</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/fisher.test">fisher.test</a></span>(active_sample<span class="op">$</span>bin2,pbo_sample<span class="op">$</span>bin2)<span class="op">$</span>p.value)</a>
-<a class="sourceLine" id="cb18-20" data-line-number="20">  )</a>
-<a class="sourceLine" id="cb18-21" data-line-number="21">}</a>
-<a class="sourceLine" id="cb18-22" data-line-number="22"><span class="co">#Simulate Pvalues</span></a>
-<a class="sourceLine" id="cb18-23" data-line-number="23">p_sim=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/do.call">do.call</a></span>(rbind, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">replicate</a></span>(<span class="dv">100</span>, <span class="kw">sim_and_analyze</span>(), <span class="dt">simplify =</span> <span class="ot">FALSE</span>))</a>
-<a class="sourceLine" id="cb18-24" data-line-number="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(errorTrackGlobal)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co">#Manage any errors by assuming the pvalue failed to reach statistical</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="co">#significance (i.e. pvalue is 1) but keep track of such errors. </span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">errorTrackGlobal=<span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>()</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">manageError=<span class="cf">function</span>(expr)  {</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html">tryCatch</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/eval.html">eval</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/substitute.html">quote</a></span>(expr)), <span class="dt">error=</span><span class="cf">function</span>(e){</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6">    errorTrackGlobal[[<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(errorTrackGlobal)<span class="op">+</span><span class="dv">1</span>]] &lt;&lt;-<span class="st"> </span>e<span class="op">$</span>message</a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">  }) </a>
+<a class="sourceLine" id="cb16-9" data-line-number="9">}</a>
+<a class="sourceLine" id="cb16-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12"><span class="co">#create function to simulate and analyze one virtual trial</span></a>
+<a class="sourceLine" id="cb16-13" data-line-number="13">sim_and_analyze=<span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb16-14" data-line-number="14">  active_sample=<span class="kw"><a href="../reference/tboot_bmr.html">tboot_bmr</a></span>(<span class="dv">100</span>, bmr_active)</a>
+<a class="sourceLine" id="cb16-15" data-line-number="15">  pbo_sample=<span class="kw"><a href="../reference/tboot_bmr.html">tboot_bmr</a></span>(<span class="dv">100</span>, bmr_pbo)</a>
+<a class="sourceLine" id="cb16-16" data-line-number="16">  <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</a>
+<a class="sourceLine" id="cb16-17" data-line-number="17">    <span class="dt">p_quant1=</span><span class="kw">manageError</span>(<span class="kw"><a href="https://rdrr.io/r/stats/t.test.html">t.test</a></span>(active_sample<span class="op">$</span>quant1,pbo_sample<span class="op">$</span>quant1)<span class="op">$</span>p.value),</a>
+<a class="sourceLine" id="cb16-18" data-line-number="18">    <span class="dt">p_bin1=</span><span class="kw">manageError</span>(<span class="kw"><a href="https://rdrr.io/r/stats/fisher.test.html">fisher.test</a></span>(active_sample<span class="op">$</span>bin1,pbo_sample<span class="op">$</span>bin1)<span class="op">$</span>p.value),</a>
+<a class="sourceLine" id="cb16-19" data-line-number="19">    <span class="dt">p_bin2=</span><span class="kw">manageError</span>(<span class="kw"><a href="https://rdrr.io/r/stats/fisher.test.html">fisher.test</a></span>(active_sample<span class="op">$</span>bin2,pbo_sample<span class="op">$</span>bin2)<span class="op">$</span>p.value)</a>
+<a class="sourceLine" id="cb16-20" data-line-number="20">  )</a>
+<a class="sourceLine" id="cb16-21" data-line-number="21">}</a>
+<a class="sourceLine" id="cb16-22" data-line-number="22"><span class="co">#Simulate Pvalues</span></a>
+<a class="sourceLine" id="cb16-23" data-line-number="23">p_sim=<span class="kw"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span>(rbind, <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">replicate</a></span>(<span class="dv">100</span>, <span class="kw">sim_and_analyze</span>(), <span class="dt">simplify =</span> <span class="ot">FALSE</span>))</a>
+<a class="sourceLine" id="cb16-24" data-line-number="24"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(errorTrackGlobal)</a></code></pre></div>
 <pre><code>## list()</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(p_sim)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(p_sim)</a></code></pre></div>
 <pre><code>##       p_quant1     p_bin1     p_bin2
 ## 1 8.361678e-03 1.00000000 1.00000000
 ## 2 8.493083e-07 1.00000000 1.00000000
@@ -301,6 +298,7 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -322,17 +320,20 @@
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Nathan Morris, William Michael Landau.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
