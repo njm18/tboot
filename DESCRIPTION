@@ -15,9 +15,7 @@ Authors@R: c(
   person(
     family = "Eli Lilly and Company",
     role = "cph"))
-Description: Package supports weighted resampling of data rows
-  to achieve target column means. It also supports a 
-  a huristic appraoch to constructing a joint distribumtion from marginals.
+Description: The tilted bootstrap as implemented in the 'tboot' package is an approach to resampling where samples are drawn from the observed data with some samples appearing more frequently than others. Tilted bootstraping may be used to create simulated clinical trail data with realistic correlation structures and assumed efficacy levels. The 'tboot' package may also be used for simulating a joint Bayesian distribution along along with clinical trials based on the Bayesian distribution.
 License: GPL-3
 Depends:
   R (>= 3.2.0)

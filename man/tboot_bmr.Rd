@@ -4,7 +4,7 @@
 \alias{tboot_bmr}
 \title{Function tboot_bmr}
 \usage{
-tboot_bmr(nrow, weights_bmr, tol_rel_sd = 0.05)
+tboot_bmr(nrow, weights_bmr, tol_rel_sd = 0.01)
 }
 \arguments{
 \item{nrow}{number of rows in the new bootstrapped dataset.}

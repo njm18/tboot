@@ -1,0 +1,9 @@
+Peer review of the tboot (version 0.2.0) package was performed by Mitch Thomann in March 2020.  
+
+Review Description:
+
+Mitch worked through the package documentation, code and test cases.  The focus of this review was on the bmr functions that were added.  All were deemed accurate, the code performed at expectation and tests are reasonable.  
+
+Mitch also performed some test examples and small simulation studies to vary assumptions and confirm that package functions were working properly and as described in the documentation.  No problems were found.
+
+Review completed with no recommendations for modification.  

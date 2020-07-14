@@ -11,7 +11,7 @@ tboot: tilted bootstrapping and Bayesian marginal reconstruction.
 \url{https://github.com/wlandau-lilly/tboot}
 }
 \author{
-William Michael Landau \email{will.landau@lilly.com}
-
 Nathan Morris \email{morris_nathan@lilly.com}
+
+William Michael Landau \email{will.landau@lilly.com}
 }
