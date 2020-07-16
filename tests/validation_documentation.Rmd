@@ -1,0 +1,71 @@
+---
+title: "User Defined Validation Plan"
+author: "Nathan Morris"
+date: "2/27/2020"
+output: html_document
+---
+
+# Purpose of this document
+This document describes the "user defined validation plan" as descriped in "Develop, Validate, and Execute Code." Thus, it documents the steps to be taken to reasonably ensure this package functions according to specifications. The function documentation and vignettes serve as the specifications.
+
+# Rationale
+
+Since this is a package with limited scope that will be installed and/or used by other applications, many of the supporting deliverables that are typical for computer system validation are not applicable. The Security plan is not required, because any security functionality to control use of the package is the responsibility of the application using the package. Access to the code is controlled by GitHub. Furthermore, the package will rely on GitHub Backup/Restoration and Disaster Recovery of the source code. Applications that incorporate the package are responsible for their own Disaster Recovery and Backup/Restoration processes. The Business Continuity Plan is the responsibility of the application that incorporates the package. This package may be placed on CRAN.  
+
+
+# Roles
+The following roles will be involved in validation:
+
+ + Code Author
+ + Second Progammer / Peer Reviewer 
+
+# Peer Review
+An indepent review of code will be performed to confirm the code operates according to specification. The reviewer will also create select test cases and review results for reasonablness.
+
+# Automated Testing
+In addion to peer review a set of autmated test cases will be created.
+
+## Automated Testing of Edge Cases
+Many cases of clearly incorrect inputs are automatically tested in this package to ensure the package correctly throws errors and warnings. The code for these edge cases can be found in the file "/tboot/tests/testthat/test-edge-cases.R". These include edge cases for the following 5 functions:
+
+ + tweigths()
+ + tboot()
+ + tweights_bmr()
+ + post_bmr()
+ + tboot_bmr()
+ 
+## Automated Testing of 'tweights' and 'tboot'
+
+Test cases were created for 'tweights' and 'tboot' with the following description:
+
+1. We require that the  weighted mean from the data using the weights from tweights should lead to the specified 'target' specified mean. This is checked by the 'tweights' function itself every time it is run and the results are automatically printed to the screen every time the function is run unless suppressed.
+
+2. We require that the results of tboot for large samples should be the expected target for several different scenarios. One such such scenario is found in the 'tboot' vignette. Additional scenarios are automatically checked in "/tboot/tests/testthat/test-tboot.R".
+
+3. We require the the the results from tboot be consistent with several theoretical expectations. This is checked in the 'exp_tilting' vignette.
+
+
+## Automated Testing of 'tweights_bmr,' 'post_bmr' and 'tboot_bmr'
+
+The following steps were taken to ensure the 'tweights_bmr,' 'post_bmr' and 'tboot_bmr' functions work as expected:
+
+1. Calls to 'tweights_bmr' are depenendent on 'tweights' and calls to 'tboot_bmr' are dependent on 'tboot.' Validation of these functions is described above.
+
+2. We require that the marginal distribution of the output from 'post_bmr' should be similar to the marginal distribution inputed into 'tweights_bmr.' This is shown in the vignette graphically. It is also checked in the "/tboot/tests/testthat/test-tboot_bmr.R" file by looking at moments up to the fourth moment. This same requirement for the marginal should be true of the post_bmr attribute from the 'tboot_bmr' function. We check the attribute in "/tboot/tests/testthat/test-tboot_bmr.R".
+
+3. We require that the square of the square root matrix from tweights_bmr should match with the correlation from a large sample from tboot. This is checked in "/tboot/tests/testthat/test-tboot_bmr.R" along with several other expectations on correlation in a specific scenario.
+
+4. We require the the large sample results from 'post_bmr' be consistent with theoretical expectations as described and demonstrated in the vignette.
+
+# Revisions
+
+## Version Control
+The source code for this package is stored in a secured GitHub repository. Semantic versioning (https://semver.org/) will be utilized for version numbering starting with version 0.2.0.
+
+## Revise Code
+
+When changes are made to the code, the SOPs should be followed. Since the code is in a version controlled repository, all code changes and the rationale for the modifications are traceable with GitHub. The code will be reviewed for accuracy when a new revision of the package is released, per the automated processes described above.
+
+## Periodic Review Strategy
+
+Since this is an R package and not a full application, it will have a limited periodic review. The validation documentation (including training information) will be reviewed for accuracy when a new revision of the package is released. Automated testing will be performed when the updated package is built. Given the limited scope of this package, any incidents, problems, deviations, action items, and changes will be reviewed when they are occur and addressed as applicable. No additional monitoring or trending will be performed.

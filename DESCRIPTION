@@ -1,0 +1,35 @@
+Package: tboot
+Title: Tilted Bootstrap
+Version: 0.2.0
+Authors@R: c(
+  person(
+    family = "Morris",
+    given = "Nathan",
+    email = "morris_nathan@lilly.com",
+    role = c("aut", "cre")),
+  person(
+    family = "Landau",
+    given = c("William", "Michael"),
+    email = "will.landau@lilly.com",
+    role = c("aut")),
+  person(
+    family = "Eli Lilly and Company",
+    role = "cph"))
+Description: The tilted bootstrap as implemented in the 'tboot' package is an approach to resampling where samples are drawn from the observed data with some samples appearing more frequently than others. Tilted bootstraping may be used to create simulated clinical trail data with realistic correlation structures and assumed efficacy levels. The 'tboot' package may also be used for simulating a joint Bayesian distribution along along with clinical trials based on the Bayesian distribution.
+License: GPL-3
+Depends:
+  R (>= 3.2.0)
+Imports:
+  stats,
+  quadprog,
+  kernlab
+Suggests:
+  knitr,
+  rmarkdown,
+  testthat,
+  MASS,
+  ggplot2
+VignetteBuilder: knitr
+URL: https://github.com/nmorris-lilly/tboot
+BugReports: https://github.com/nmorris-lilly/tboot/issues
+RoxygenNote: 7.0.2
