@@ -11,7 +11,7 @@ Authors@R: c(
     family = "Landau",
     given = c("William", "Michael"),
     email = "will.landau@lilly.com",
-    role = c("aut")),
+    role = c("ctb")),
   person(
     family = "Eli Lilly and Company",
     role = "cph"))
