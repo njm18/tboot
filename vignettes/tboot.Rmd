@@ -1,6 +1,6 @@
 ---
 title: "Getting Started with the Tilted Bootstrap"
-author: "Nathan Morris, Will Landau"
+author: "Nathan Morris"
 date: "`r Sys.Date()`"
 bibliography: bibliography.bib
 output: rmarkdown::html_vignette

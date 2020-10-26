@@ -12,6 +12,4 @@ tboot: tilted bootstrapping and Bayesian marginal reconstruction.
 }
 \author{
 Nathan Morris \email{morris_nathan@lilly.com}
-
-William Michael Landau \email{will.landau@lilly.com}
 }
